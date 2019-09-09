@@ -1,10 +1,8 @@
 package me.naming.delieveryservice.controller;
 
-import me.naming.delieveryservice.config.RedisConfig;
 import me.naming.delieveryservice.vo.RedisTestVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +15,6 @@ public class LoginController {
 
     @Autowired
     RedisTemplate redisTemplate;
-
 
     @RequestMapping(method = RequestMethod.GET,value = "/set-redis")
     public Object setValue() throws Exception {
