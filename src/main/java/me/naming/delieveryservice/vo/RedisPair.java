@@ -1,7 +1,7 @@
 package me.naming.delieveryservice.vo;
 
 
-public class RedisTestVO {
+public class RedisPair {
 
     private String redisKey;
     private String redisValue;
