@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="me.naming.delieveryservice.dao.UserDao">
+    <resultMap id="UserVO" type="me.naming.delieveryservice.vo.UserVO">
+        <result property="pid_num" column="pid_num"/>
+        <result property="id" column="id"/>
+        <result property="password" column="password"/>
+    </resultMap>
+
+    <select id="userInfo" resultType="UserVO">
+        SELECT * FROM Delievery_Service.USER_BASE;
+    </select>
+
+    <insert id="insertUserInfo">
+        INSERT INTO Delievery_Service.USER_BASE(id, password) VALUES(#{id}, #{password})
+    </insert>
+
+</mapper>
