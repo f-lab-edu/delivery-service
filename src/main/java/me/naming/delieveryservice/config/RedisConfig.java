@@ -23,9 +23,14 @@ public class RedisConfig {
     private int redisPort;
 
     @Bean
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory(redisHost, redisPort);
+    }
+
+    @Bean
     public StringRedisTemplate redisTemplate() {
         StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
-        stringRedisTemplate.setConnectionFactory(new LettuceConnectionFactory(redisHost, redisPort));
+        stringRedisTemplate.setConnectionFactory(redisConnectionFactory());
         stringRedisTemplate.setKeySerializer(new StringRedisSerializer());
         stringRedisTemplate.setValueSerializer(new StringRedisSerializer());
         return stringRedisTemplate;
