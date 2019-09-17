@@ -24,8 +24,8 @@ public class DatabaseConfig {
     }
 
     @Bean
-    public DataSource dataSource() {
-        DataSource dataSource = new HikariDataSource(hikariConfig());
+    public DataSource dataSource(HikariConfig hikariConfig) {
+        DataSource dataSource = new HikariDataSource(hikariConfig);
         return dataSource;
     }
 
@@ -35,7 +35,7 @@ public class DatabaseConfig {
         sqlSessionFactory.setDataSource(dataSource);
         sqlSessionFactory.setVfs(SpringBootVFS.class);
         sqlSessionFactory.setTypeAliasesPackage("me.naming.delieveryservice.vo");
-        sqlSessionFactory.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:/mapper/*.xml"));
+        sqlSessionFactory.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:/mapper/*.xml"));        // Mapper 파일 위치 셋팅
         SqlSessionFactory sqlFactory = sqlSessionFactory.getObject();
         sqlFactory.getConfiguration().setMapUnderscoreToCamelCase(true);
 
