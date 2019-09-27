@@ -3,9 +3,12 @@ package me.naming.delieveryservice.controller;
 import me.naming.delieveryservice.dao.UserDao;
 import me.naming.delieveryservice.service.UserService;
 import me.naming.delieveryservice.vo.UserVO;
-import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +30,7 @@ public class LoginController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/sign-in" )
     public String signInUserInfo(@RequestBody Map<String,String> userInfo) throws Exception {
-        String result = userService.insertUserInfo(userInfo);
-        return result;
+        return userService.insertUserInfo(userInfo);
     }
 
 
