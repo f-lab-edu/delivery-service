@@ -1,4 +1,4 @@
-package me.naming.delieveryservice.vo;
+package me.naming.delieveryservice.dto;
 
 import lombok.Data;
 import org.apache.ibatis.type.Alias;

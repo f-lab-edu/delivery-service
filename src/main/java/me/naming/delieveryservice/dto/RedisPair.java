@@ -1,4 +1,4 @@
-package me.naming.delieveryservice.vo;
+package me.naming.delieveryservice.dto;
 
 
 public class RedisPair {

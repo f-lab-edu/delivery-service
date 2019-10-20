@@ -2,7 +2,7 @@ package me.naming.delieveryservice.controller;
 
 import me.naming.delieveryservice.dao.UserDao;
 import me.naming.delieveryservice.service.UserService;
-import me.naming.delieveryservice.vo.UserVO;
+import me.naming.delieveryservice.dto.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

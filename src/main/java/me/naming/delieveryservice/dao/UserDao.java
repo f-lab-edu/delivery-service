@@ -1,6 +1,6 @@
 package me.naming.delieveryservice.dao;
 
-import me.naming.delieveryservice.vo.UserVO;
+import me.naming.delieveryservice.dto.UserVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
