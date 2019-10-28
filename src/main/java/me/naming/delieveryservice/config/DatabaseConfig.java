@@ -17,7 +17,7 @@ import javax.sql.DataSource;
 public class DatabaseConfig {
 
     @Bean
-    @ConfigurationProperties(prefix = "spring.datasource.hikari")       // application.properties에 'spring.datasource.hikari'로 작성된 설정 내용을 갖고온다.
+    @ConfigurationProperties(prefix = "spring.datasource.hikari")       // application.properties에 작성된 'spring.datasource.hikari' 설정
     public HikariConfig hikariConfig() {
         return new HikariConfig();
     }
@@ -42,7 +42,7 @@ public class DatabaseConfig {
     }
 
     @Bean
-    public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
+    public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {     // 'SqlSessionFactory' 빈 객체 주입
         return new SqlSessionTemplate(sqlSessionFactory);
     }
 }
