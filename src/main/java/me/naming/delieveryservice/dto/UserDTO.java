@@ -4,8 +4,8 @@ import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
 @Data
-@Alias("UserVO")
-public class UserVO {
+@Alias("UserDTO")
+public class UserDTO {
 
     private int pid_num;
     private String id;
