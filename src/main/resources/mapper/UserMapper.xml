@@ -2,13 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="me.naming.delieveryservice.dao.UserDao">
-    <resultMap id="UserVO" type="me.naming.delieveryservice.dto.UserVO">
-        <result property="pid_num" column="pid_num"/>
+
+    <resultMap id="UserDTO" type="me.naming.delieveryservice.dto.UserDTO">
+        <result property="pidNum" column="pid_num"/>
         <result property="id" column="id"/>
         <result property="password" column="password"/>
     </resultMap>
 
-    <select id="userInfo" resultType="UserVO">
+    <select id="userInfo" resultType="UserDTO">
         SELECT * FROM Delievery_Service.USER_BASE;
     </select>
 

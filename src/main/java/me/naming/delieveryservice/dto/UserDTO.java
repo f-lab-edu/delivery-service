@@ -7,7 +7,7 @@ import org.apache.ibatis.type.Alias;
 @Alias("UserDTO")
 public class UserDTO {
 
-    private int pid_num;
+    private int pidNum;
     private String id;
     private String password;
 
