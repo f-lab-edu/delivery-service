@@ -9,29 +9,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/customer")
 public class LoginController {
-
-    @Autowired
-    private UserDao userDao;
 
     @Autowired
     private UserService userService;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/user/info")
-    public List userInfo() throws Exception{
-        List<UserDTO> objUserInfo = userDao.userInfo();
-        return objUserInfo;
-    }
-
     @RequestMapping(method = RequestMethod.POST, value = "/sign-in" )
-    public String signInUserInfo(@RequestBody Map<String,String> userInfo) throws Exception {
-        return userService.insertUserInfo(userInfo);
+    public Object signInUserInfo(@RequestBody UserDTO userDTO) throws Exception {
+        return userService.insertUserInfo(userDTO);
     }
-
 
 }
