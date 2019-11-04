@@ -7,6 +7,7 @@
         <result property="pidNum" column="pid_num"/>
         <result property="id" column="id"/>
         <result property="password" column="password"/>
+        <result property="mobileNum" column="mobile_num"/>
     </resultMap>
 
     <select id="userInfo" resultType="UserDTO">
