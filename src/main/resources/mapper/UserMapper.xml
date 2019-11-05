@@ -14,8 +14,8 @@
         WHERE id = #{id}
     </select>
 
-    <select id="userLogin" parameterType="me.naming.delieveryservice.dto.UserDTO">
-        SELECT PID_NUM
+    <select id="userLogin" resultType="me.naming.delieveryservice.dto.UserDTO">
+        SELECT PID_NUM, ID, PASSWORD, MOBILE_NUM
         FROM USER_BASE
         WHERE id = #{id}
         AND password = #{password}
