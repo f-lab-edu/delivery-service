@@ -1,6 +1,11 @@
 package me.naming.delieveryservice.controller;
 
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +15,13 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 
+
+/**
+ * Lombok을 활용한 생성자 자동생성
+ *  - @NoArgsConstructor 파라미터가 없는 기본 생성자 생성
+ *  - @AllArgsConstructor 모든 필드 값을 파라미터로 받는 생성자 생성
+ *  - @RequiredArgsConstructor final or @NonNull인 필드 값만 파라미터로 받는 생성자 생성
+ */
 @RestController
 @RequestMapping("/customer")
 public class LoginController {

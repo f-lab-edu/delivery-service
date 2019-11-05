@@ -1,10 +1,11 @@
 package me.naming.delieveryservice.dto;
 
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
 import org.apache.ibatis.type.Alias;
 
-@Data
+@Getter
+@Setter
+@ToString(exclude = "password")
 @Alias("UserDTO")
 public class UserDTO {
 
