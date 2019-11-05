@@ -8,16 +8,11 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpSession;
-import javax.xml.ws.Response;
-
 
 /**
  * Lombok을 활용한 생성자 자동생성
