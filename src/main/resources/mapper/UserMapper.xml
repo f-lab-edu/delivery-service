@@ -27,4 +27,11 @@
         WHERE id = #{id}
     </update>
 
+    <update id="deleteUserInfo">
+        UPDATE USER_BASE
+        SET STATUS = 'DELETE',
+        DATE_UPDATE = NOW()
+        WHERE ID = #{id}
+    </update>
+
 </mapper>

@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpStatus;
@@ -120,6 +121,20 @@ public class LoginController {
         return responseEntity;
     }
 
+    @RequestMapping(method = RequestMethod.DELETE, value = "/user-info")
+    public ResponseEntity<DbResponse> deleteUserInfo(HttpSession httpSession) {
+        ResponseEntity<DbResponse> responseEntity;
+        DbResponse dbResponse;
+
+        String id = httpSession.getAttribute("USER_ID").toString();
+        userService.deleteUserInfo(id);
+
+        dbResponse = DbResponse.SUCCESS;
+        httpSession.invalidate();
+        responseEntity = new ResponseEntity<>(dbResponse, HttpStatus.OK);
+        return responseEntity;
+    }
+
     @Getter
     @RequiredArgsConstructor
     private static class DbResponse {
@@ -134,8 +149,6 @@ public class LoginController {
         private static final DbResponse FAIL    = new DbResponse(DbStatus.FAIL);
         private static final DbResponse NO_DATA    = new DbResponse(DbStatus.NO_DATA);
     }
-
-
 
     @Getter
     @RequiredArgsConstructor

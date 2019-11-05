@@ -53,13 +53,26 @@ public class UserService {
         return userDTO;
     }
 
+    /**
+     * 사용자 정보 삭제하기 위한 메소드
+     * @param id
+     * @param newPassword
+     */
     public void updatePwd(String id, String newPassword) {
 
         String encryptPwd = SHA256Util.encrypt(newPassword);
         int udtResult = userDao.updatePwd(id, encryptPwd);
         if(udtResult != 1) {
             throw new RuntimeException(
-                    "update Password Error : ");
+                    "update Password Error");
+        }
+    }
+
+    public void deleteUserInfo(String id){
+
+        int udtResult = userDao.deleteUserInfo(id);
+        if(udtResult != 1) {
+            throw new RuntimeException("deleteUserInfo Error");
         }
     }
 }
