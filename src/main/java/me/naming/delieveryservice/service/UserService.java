@@ -52,5 +52,15 @@ public class UserService {
         UserDTO userDTO = userDao.userLogin(id, encryptPwd);
         return userDTO;
     }
+
+    public void updatePwd(String id, String newPassword) {
+
+        String encryptPwd = SHA256Util.encrypt(newPassword);
+        int udtResult = userDao.updatePwd(id, encryptPwd);
+        if(udtResult != 1) {
+            throw new RuntimeException(
+                    "update Password Error : ");
+        }
+    }
 }
 

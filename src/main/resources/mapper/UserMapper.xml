@@ -20,5 +20,11 @@
         WHERE id = #{id}
         AND password = #{password}
     </select>
+    
+    <update id="updatePwd">
+        UPDATE USER_BASE
+        SET password = #{newPassword}
+        WHERE id = #{id}
+    </update>
 
 </mapper>

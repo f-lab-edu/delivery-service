@@ -9,11 +9,13 @@ import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import javax.xml.ws.Response;
 
 
 /**
@@ -88,10 +90,52 @@ public class LoginController {
         }
 
         loginResponse = LoginResponse.success(userDTO);
-        httpSession.setAttribute("PID_NUM", userDTO.getPidNum());
+        httpSession.setAttribute("USER_ID", userDTO.getId());
         rspResponseEntity = new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
         return rspResponseEntity;
     }
+
+    /**
+     * 비밀번호를 변경하기 위한 메소드
+     * @param userChgPwd
+     * @param httpSession
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.POST, value = "/password")
+    public ResponseEntity<DbResponse> updatePwd(@RequestBody UserChgPwd userChgPwd, HttpSession httpSession) {
+
+        ResponseEntity<DbResponse> responseEntity;
+        DbResponse dbResponse;
+
+        String userId = httpSession.getAttribute("USER_ID").toString();
+        if(userId == null) {
+            dbResponse = DbResponse.NO_DATA;
+            responseEntity = new ResponseEntity<>(dbResponse, HttpStatus.UNAUTHORIZED);
+            return responseEntity;
+        }
+
+        userService.updatePwd(userId, userChgPwd.getNewPassword());
+        dbResponse = DbResponse.SUCCESS;
+        responseEntity = new ResponseEntity<>(dbResponse, HttpStatus.OK);
+        return responseEntity;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    private static class DbResponse {
+        enum DbStatus {
+            SUCCESS, FAIL, ERROR, NO_DATA
+        }
+
+        @NonNull
+        private DbStatus result;
+
+        private static final DbResponse SUCCESS = new DbResponse(DbStatus.SUCCESS);
+        private static final DbResponse FAIL    = new DbResponse(DbStatus.FAIL);
+        private static final DbResponse NO_DATA    = new DbResponse(DbStatus.NO_DATA);
+    }
+
+
 
     @Getter
     @RequiredArgsConstructor
@@ -143,6 +187,8 @@ public class LoginController {
         }
     }
 
+
+    //--------------- Body로 Request 받을 데이터 지정 ---------------
     @Getter
     @Setter
     private static class UserLoginRequest {
@@ -150,6 +196,13 @@ public class LoginController {
         String id;
         @NonNull
         String password;
+    }
+
+    @Getter
+    @Setter
+    private static class UserChgPwd {
+        @NonNull
+        String newPassword;
     }
 
 }

@@ -11,5 +11,6 @@ public interface UserDao {
     int insertUserInfo(UserDTO userDTO);
     int checkIdDuplicate(String id);
     UserDTO userLogin(String id, String password);
+    int updatePwd(String id, String newPassword);
 
 }
