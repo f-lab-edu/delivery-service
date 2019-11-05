@@ -1,7 +1,12 @@
 package me.naming.delieveryservice.dto;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.NonNull;
 import org.apache.ibatis.type.Alias;
+
+import java.util.Date;
 
 @Getter
 @Setter
@@ -19,6 +24,6 @@ public class UserDTO {
     private String mobileNum;
 
     private String name;
-    private int birthdate;
+    private Date birthdate;
 
 }
