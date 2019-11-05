@@ -30,5 +30,27 @@ public class UserService {
                     "insertUserInfo ERROR! 필수 정보를 모두 기입해주세요! \n" + "Params : " + userDTO);
         }
     }
+
+    /**
+     * ID 중복확인 메서드
+     * @param id 사용자가 입력한 ID
+     * @return
+     */
+    public boolean checkIdDuplicate(String id) {
+        return userDao.checkIdDuplicate(id) == 1;
+    }
+
+    /**
+     * 로그인 메서드
+     * @param id 사용자가 입력한 ID
+     * @param password 사용자가 입력한 PWD. 암호화 하기 전
+     * @return
+     */
+    public UserDTO userLogin(String id, String password) {
+
+        String encryptPwd = SHA256Util.encrypt(password);
+        UserDTO userDTO = userDao.userLogin(id, encryptPwd);
+        return userDTO;
+    }
 }
 

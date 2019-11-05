@@ -4,7 +4,21 @@
 <mapper namespace="me.naming.delieveryservice.dao.UserDao">
 
     <insert id="insertUserInfo" parameterType="me.naming.delieveryservice.dto.UserDTO">
-        INSERT INTO Delievery_Service.USER_BASE(id, password, mobile_num) VALUES(#{id}, #{password}, #{mobileNum})
+        INSERT INTO Delievery_Service.USER_BASE(id, password, mobile_num)
+        VALUES(#{id}, #{password}, #{mobileNum})
     </insert>
+
+    <select id="checkIdDuplicate" resultType="int">
+        SELECT COUNT(id)
+        FROM USER_BASE
+        WHERE id = #{id}
+    </select>
+
+    <select id="userLogin" parameterType="me.naming.delieveryservice.dto.UserDTO">
+        SELECT PID_NUM
+        FROM USER_BASE
+        WHERE id = #{id}
+        AND password = #{password}
+    </select>
 
 </mapper>
