@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSession;
 @RestController
 @RequestMapping("/customer")
 @AllArgsConstructor
-public class LoginController {
+public class CustomerController {
 
     @Autowired
     private UserService userService;
