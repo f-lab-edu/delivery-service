@@ -22,10 +22,13 @@ import javax.servlet.http.HttpSession;
  */
 @RestController
 @RequestMapping("/customer")
+@AllArgsConstructor
 public class LoginController {
 
     @Autowired
     private UserService userService;
+
+    private static final ResponseEntity createSuccess = new ResponseEntity<String>("SUCCESS", HttpStatus.CREATED);
 
     /**
      * 고객 회원가입 메서드
@@ -38,8 +41,7 @@ public class LoginController {
     public ResponseEntity<SignUpResponse> signUpUserInfo(@RequestBody UserDTO userDTO) {
         ResponseEntity<SignUpResponse> responseEntity = null;
         userService.insertUserInfo(userDTO);
-        SignUpResponse result = SignUpResponse.SUCCESS;
-        responseEntity = new ResponseEntity<SignUpResponse>(result, HttpStatus.CREATED);
+        responseEntity = createSuccess;
         return responseEntity;
     }
 
@@ -188,7 +190,6 @@ public class LoginController {
             return new LoginResponse(LogInStatus.SUCCESS, userDTO);
         }
     }
-
 
     //--------------- Body로 Request 받을 데이터 지정 ---------------
     @Getter
