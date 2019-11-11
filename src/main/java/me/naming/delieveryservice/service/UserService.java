@@ -25,10 +25,8 @@ public class UserService {
         userDTO.setPassword(SHA256Util.encrypt(userDTO.getPassword()));
 
         int insertCount = userDao.insertUserInfo(userDTO);
-        if (insertCount != 1) {
-            throw new RuntimeException(
-                    "insertUserInfo ERROR! 필수 정보를 모두 기입해주세요! \n" + "Params : " + userDTO);
-        }
+        if (insertCount != 1) throw new RuntimeException("insertUserInfo ERROR! 필수 정보를 모두 기입해주세요! \n" + "Params : " + userDTO);
+
     }
 
     /**
@@ -62,18 +60,15 @@ public class UserService {
 
         String encryptPwd = SHA256Util.encrypt(newPassword);
         int udtResult = userDao.updatePwd(id, encryptPwd);
-        if(udtResult != 1) {
-            throw new RuntimeException(
-                    "update Password Error");
-        }
+        if(udtResult != 1) throw new RuntimeException("update Password Error");
+
     }
 
     public void deleteUserInfo(String id){
 
         int udtResult = userDao.deleteUserInfo(id);
-        if(udtResult != 1) {
-            throw new RuntimeException("deleteUserInfo Error");
-        }
+        if(udtResult != 1) throw new RuntimeException("deleteUserInfo Error");
+
     }
 }
 
