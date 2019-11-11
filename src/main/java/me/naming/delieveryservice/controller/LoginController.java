@@ -34,7 +34,7 @@ public class LoginController {
      * @param userDTO 저장할 회원정보
      * @return
      */
-    @RequestMapping(method = RequestMethod.POST, value = "/sign-up" )
+    @RequestMapping(method = RequestMethod.POST, value = "/signup" )
     public ResponseEntity<SignUpResponse> signUpUserInfo(@RequestBody UserDTO userDTO) {
         ResponseEntity<SignUpResponse> responseEntity = null;
         userService.insertUserInfo(userDTO);
@@ -73,18 +73,12 @@ public class LoginController {
      * @return
      */
     @RequestMapping(method = RequestMethod.POST, value = "/login")
-    public ResponseEntity<LoginResponse> userLogin(@RequestBody  UserLoginRequest userLoginRequest, HttpSession httpSession) {
+    public ResponseEntity<LoginResponse> userLogin(@RequestBody  UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
 
         ResponseEntity<LoginResponse> rspResponseEntity;
         LoginResponse loginResponse;
 
         UserDTO userDTO = userService.userLogin(userLoginRequest.getId(), userLoginRequest.getPassword());
-        if(userDTO == null) {
-            loginResponse = LoginResponse.FAIL;
-            rspResponseEntity = new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.UNAUTHORIZED);
-            return rspResponseEntity;
-        }
-
         loginResponse = LoginResponse.success(userDTO);
         httpSession.setAttribute("USER_ID", userDTO.getId());
         rspResponseEntity = new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
@@ -116,7 +110,7 @@ public class LoginController {
         return responseEntity;
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/user-info")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/userinfo")
     public ResponseEntity<DbResponse> deleteUserInfo(HttpSession httpSession) {
         ResponseEntity<DbResponse> responseEntity;
         DbResponse dbResponse;
