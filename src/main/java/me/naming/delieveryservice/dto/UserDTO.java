@@ -14,16 +14,12 @@ import java.util.Date;
 @Alias("UserDTO")
 public class UserDTO {
 
-    private int pidNum;
+  private int pidNum;
 
-    @NonNull
-    private String id;
-    @NonNull
-    private String password;
-    @NonNull
-    private String mobileNum;
+  @NonNull private String id;
+  @NonNull private String password;
+  @NonNull private String mobileNum;
 
-    private String name;
-    private Date birthdate;
-
+  private String name;
+  private Date birthdate;
 }
