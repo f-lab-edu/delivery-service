@@ -65,10 +65,13 @@ public class UserService {
     }
 
     public void deleteUserInfo(String id){
-
         int udtResult = userDao.deleteUserInfo(id);
         if(udtResult != 1) throw new RuntimeException("deleteUserInfo Error");
+    }
 
+    public UserDTO getUserInfo(String id) {
+        UserDTO userDTO = userDao.getUserInfo(id);
+        return userDTO;
     }
 }
 

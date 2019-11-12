@@ -3,9 +3,18 @@
 
 <mapper namespace="me.naming.delieveryservice.dao.UserDao">
 
+    <resultMap id="userInfo" type="me.naming.delieveryservice.dto.UserDTO">
+        <result property="pidNum"       column="PID_NUM" />
+        <result property="userId"       column="ID" />
+        <result property="password"     column="PASSWORD" />
+        <result property="mobileNum"    column="MOBILE_NUM" />
+        <result property="name"         column="NAME" />
+        <result property="birthdate"    column="BIRTHDATE" />
+    </resultMap>
+
     <insert id="insertUserInfo" parameterType="me.naming.delieveryservice.dto.UserDTO">
         INSERT INTO Delievery_Service.USER_BASE(id, password, mobile_num)
-        VALUES(#{id}, #{password}, #{mobileNum})
+        VALUES(#{userId}, #{password}, #{mobileNum})
     </insert>
 
     <select id="checkIdDuplicate" resultType="int">
@@ -14,13 +23,19 @@
         WHERE id = #{id}
     </select>
 
-    <select id="userLogin" resultType="me.naming.delieveryservice.dto.UserDTO">
+    <select id="userLogin" resultMap="userInfo">
         SELECT PID_NUM, ID, PASSWORD, MOBILE_NUM
         FROM USER_BASE
         WHERE id = #{id}
         AND password = #{password}
     </select>
-    
+
+    <select id="getUserInfo" resultMap="userInfo">
+        SELECT STATUS, ID, PASSWORD, MOBILE_NUM, NAME, BIRTHDATE
+        FROM USER_BASE
+        WHERE ID = #{id}
+    </select>
+
     <update id="updatePwd">
         UPDATE USER_BASE
         SET password = #{newPassword}

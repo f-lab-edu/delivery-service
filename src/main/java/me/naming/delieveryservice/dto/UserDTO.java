@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.NonNull;
 import org.apache.ibatis.type.Alias;
+import org.springframework.hateoas.ResourceSupport;
 
 import java.util.Date;
 
@@ -12,11 +13,11 @@ import java.util.Date;
 @Setter
 @ToString(exclude = "password")
 @Alias("UserDTO")
-public class UserDTO {
+public class UserDTO extends ResourceSupport {
 
   private int pidNum;
 
-  @NonNull private String id;
+  @NonNull private String userId;
   @NonNull private String password;
   @NonNull private String mobileNum;
 

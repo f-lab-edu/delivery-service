@@ -1,18 +1,25 @@
 package me.naming.delieveryservice.controller;
 
 
+import jdk.internal.org.objectweb.asm.commons.Method;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Lombok을 활용한 생성자 자동생성
@@ -20,8 +27,9 @@ import javax.servlet.http.HttpSession;
  *  - @AllArgsConstructor 모든 필드 값을 파라미터로 받는 생성자 생성
  *  - @RequiredArgsConstructor final or @NonNull인 필드 값만 파라미터로 받는 생성자 생성
  */
+@Slf4j
 @RestController
-@RequestMapping("/customer")
+@RequestMapping("/customers")
 @AllArgsConstructor
 public class CustomerController {
 
@@ -74,15 +82,15 @@ public class CustomerController {
      * @param httpSession      세션 저장
      * @return
      */
-    @GetMapping(value = "/login")
-    public ResponseEntity<LoginResponse> userLogin(@RequestBody  UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
+    @PostMapping(value = "/login")
+    public ResponseEntity<LoginResponse> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
 
         ResponseEntity<LoginResponse> rspResponseEntity;
         LoginResponse loginResponse;
 
-        UserDTO userDTO = userService.userLogin(userLoginRequest.getId(), userLoginRequest.getPassword());
-        loginResponse = LoginResponse.success(userDTO);
-        httpSession.setAttribute("USER_ID", userDTO.getId());
+        UserDTO userDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
+        loginResponse   = LoginResponse.success(userDTO);
+        httpSession.setAttribute("USER_ID", userDTO.getUserId());
         rspResponseEntity = new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
         return rspResponseEntity;
     }
@@ -112,7 +120,12 @@ public class CustomerController {
         return responseEntity;
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/userinfo")
+    /**
+     * 사용자 정보 변경
+     * @param httpSession
+     * @return
+     */
+    @DeleteMapping(value = "/info")
     public ResponseEntity<DbResponse> deleteUserInfo(HttpSession httpSession) {
         ResponseEntity<DbResponse> responseEntity;
         DbResponse dbResponse;
@@ -124,6 +137,20 @@ public class CustomerController {
         httpSession.invalidate();
         responseEntity = new ResponseEntity<>(dbResponse, HttpStatus.OK);
         return responseEntity;
+    }
+
+    @GetMapping(value = "/info")
+    public Resource<UserDTO> getUserInfo(HttpSession httpSession) {
+
+        String id = httpSession.getAttribute("USER_ID").toString();
+        UserDTO userDTO = userService.getUserInfo(id);
+
+        Link link = ControllerLinkBuilder.
+                linkTo(ControllerLinkBuilder.methodOn(CustomerController.class).deleteUserInfo(httpSession))
+                .withRel("DeleteUserInfo");
+
+        Resource<UserDTO> result = new Resource<>(userDTO, link);
+        return result;
     }
 
     @Getter
@@ -196,7 +223,7 @@ public class CustomerController {
     @Setter
     private static class UserLoginRequest {
         @NonNull
-        String id;
+        String userId;
         @NonNull
         String password;
     }

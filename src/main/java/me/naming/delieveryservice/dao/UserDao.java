@@ -15,4 +15,6 @@ public interface UserDao {
 
     int deleteUserInfo(String id);
 
+    UserDTO getUserInfo(String id);
+
 }
