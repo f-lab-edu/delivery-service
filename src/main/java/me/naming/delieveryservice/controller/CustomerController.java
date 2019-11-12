@@ -50,7 +50,7 @@ public class CustomerController {
      * @param id DB에서 조회할 사용자 ID
      * @return
      */
-    @RequestMapping(method = RequestMethod.GET, value = "/duplicate")
+    @GetMapping(value = "/duplicate")
     public ResponseEntity<CustomerIdDuplResponse> checkIdDuplicate(@RequestParam String id) {
 
         ResponseEntity<CustomerIdDuplResponse> responseResponseEntity;
@@ -74,7 +74,7 @@ public class CustomerController {
      * @param httpSession      세션 저장
      * @return
      */
-    @RequestMapping(method = RequestMethod.POST, value = "/login")
+    @GetMapping(value = "/login")
     public ResponseEntity<LoginResponse> userLogin(@RequestBody  UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
 
         ResponseEntity<LoginResponse> rspResponseEntity;
@@ -93,7 +93,7 @@ public class CustomerController {
      * @param httpSession
      * @return
      */
-    @RequestMapping(method = RequestMethod.POST, value = "/password")
+    @PatchMapping(value = "/password")
     public ResponseEntity<DbResponse> updatePwd(@RequestBody UserChgPwd userChgPwd, HttpSession httpSession) {
 
         ResponseEntity<DbResponse> responseEntity;
