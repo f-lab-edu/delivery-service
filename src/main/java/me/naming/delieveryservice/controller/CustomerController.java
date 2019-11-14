@@ -1,13 +1,10 @@
 package me.naming.delieveryservice.controller;
 
-
-import jdk.internal.org.objectweb.asm.commons.Method;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Lombok을 활용한 생성자 자동생성
@@ -27,7 +22,6 @@ import java.util.List;
  *  - @AllArgsConstructor 모든 필드 값을 파라미터로 받는 생성자 생성
  *  - @RequiredArgsConstructor final or @NonNull인 필드 값만 파라미터로 받는 생성자 생성
  */
-@Slf4j
 @RestController
 @RequestMapping("/customers")
 @AllArgsConstructor
@@ -45,7 +39,7 @@ public class CustomerController {
      * @param userDTO 저장할 회원정보
      * @return
      */
-    @RequestMapping(method = RequestMethod.POST, value = "/signup" )
+    @PostMapping(value = "/signup" )
     public ResponseEntity<SignUpResponse> signUpUserInfo(@RequestBody UserDTO userDTO) {
         ResponseEntity<SignUpResponse> responseEntity = null;
         userService.insertUserInfo(userDTO);
@@ -96,7 +90,7 @@ public class CustomerController {
     }
 
     /**
-     * 비밀번호를 변경하기 위한 메소드
+     * 비밀번호를 변경하기 위한 메서드
      * @param userChgPwd
      * @param httpSession
      * @return
@@ -121,7 +115,7 @@ public class CustomerController {
     }
 
     /**
-     * 사용자 정보 변경
+     * 회원 탈퇴
      * @param httpSession
      * @return
      */
@@ -139,6 +133,11 @@ public class CustomerController {
         return responseEntity;
     }
 
+    /**
+     * 회원정보 조회
+     * @param httpSession
+     * @return
+     */
     @GetMapping(value = "/info")
     public Resource<UserDTO> getUserInfo(HttpSession httpSession) {
 
