@@ -1,31 +1,34 @@
 package me.naming.delieveryservice.controller;
 
-import me.naming.delieveryservice.vo.RedisTestVO;
+import me.naming.delieveryservice.dao.UserDao;
+import me.naming.delieveryservice.service.UserService;
+import me.naming.delieveryservice.vo.UserVO;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/login")
 public class LoginController {
 
-    RedisTestVO redisTestVO = new RedisTestVO();
+    @Autowired
+    private UserDao userDao;
 
     @Autowired
-    RedisTemplate redisTemplate;
+    private UserService userService;
 
-    @RequestMapping(method = RequestMethod.GET,value = "/set-redis")
-    public Object setValue() throws Exception {
-        redisTemplate.opsForValue().set("testing123", "value");
-        return "success";
+    @RequestMapping(method = RequestMethod.GET, value = "/user/info")
+    public List userInfo() throws Exception{
+        List<UserVO> objUserInfo = userDao.userInfo();
+        return objUserInfo;
     }
 
-    @RequestMapping(method = RequestMethod.GET,value = "/get-redis")
-    public Object getValue() throws Exception {
-        String redisValue = redisTemplate.opsForValue().get("testing123").toString();
-        return redisValue;
+    @RequestMapping(method = RequestMethod.POST, value = "/sign-in" )
+    public String signInUserInfo(@RequestBody Map<String,String> userInfo) throws Exception {
+        String result = userService.insertUserInfo(userInfo);
+        return result;
     }
 
 
