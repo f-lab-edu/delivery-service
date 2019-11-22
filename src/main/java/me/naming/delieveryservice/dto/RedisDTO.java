@@ -1,7 +1,7 @@
 package me.naming.delieveryservice.dto;
 
 
-public class RedisPair {
+public class RedisDTO {
 
     private String redisKey;
     private String redisValue;

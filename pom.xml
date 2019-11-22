@@ -48,7 +48,7 @@
             <version>2.0.0</version>
         </dependency>
 
-        <!--lombok 설정정-->
+        <!--lombok 설정-->
        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
