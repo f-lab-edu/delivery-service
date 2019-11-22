@@ -18,9 +18,9 @@ import javax.servlet.http.HttpSession;
 
 /**
  * Lombok을 활용한 생성자 자동생성
- *  - @NoArgsConstructor 파라미터가 없는 기본 생성자 생성
- *  - @AllArgsConstructor 모든 필드 값을 파라미터로 받는 생성자 생성
- *  - @RequiredArgsConstructor final or @NonNull인 필드 값만 파라미터로 받는 생성자 생성
+ *  - @NoArgsConstructor        : 파라미터가 없는 기본 생성자 생성
+ *  - @AllArgsConstructor       : 모든 필드 값을 파라미터로 받는 생성자 생성
+ *  - @RequiredArgsConstructor  : final or @NonNull인 필드 값만 파라미터로 받는 생성자 생성
  */
 @RestController
 @RequestMapping("/customers")
@@ -30,7 +30,7 @@ public class CustomerController {
     @Autowired
     private UserService userService;
 
-    private static final ResponseEntity createSuccess = new ResponseEntity<String>("SUCCESS", HttpStatus.CREATED);
+    private static final ResponseEntity CREATE_SUCCESS = new ResponseEntity<String>("SUCCESS", HttpStatus.CREATED);
 
     /**
      * 고객 회원가입 메서드
@@ -41,10 +41,9 @@ public class CustomerController {
      */
     @PostMapping(value = "/signup" )
     public ResponseEntity<SignUpResponse> signUpUserInfo(@RequestBody UserDTO userDTO) {
-        ResponseEntity<SignUpResponse> responseEntity = null;
+
         userService.insertUserInfo(userDTO);
-        responseEntity = createSuccess;
-        return responseEntity;
+        return CREATE_SUCCESS;
     }
 
     /**
@@ -52,13 +51,13 @@ public class CustomerController {
      * @param id DB에서 조회할 사용자 ID
      * @return
      */
-    @GetMapping(value = "/duplicate")
-    public ResponseEntity<CustomerIdDuplResponse> checkIdDuplicate(@RequestParam String id) {
+    @GetMapping(value = "/{id}/exists")
+    public ResponseEntity<CustomerIdDuplResponse> checkIdDuplicate(@PathVariable String id) {
 
-        ResponseEntity<CustomerIdDuplResponse> responseResponseEntity;
-        CustomerIdDuplResponse customerIdDuplResponse;
+        ResponseEntity<CustomerIdDuplResponse>  responseResponseEntity;
+        CustomerIdDuplResponse                  customerIdDuplResponse;
+
         boolean idCheck = userService.checkIdDuplicate(id);
-
         if(idCheck) {
             customerIdDuplResponse = CustomerIdDuplResponse.DUPLICATED;
             responseResponseEntity = new ResponseEntity<>(customerIdDuplResponse, HttpStatus.CONFLICT);
@@ -79,14 +78,11 @@ public class CustomerController {
     @PostMapping(value = "/login")
     public ResponseEntity<LoginResponse> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
 
-        ResponseEntity<LoginResponse> rspResponseEntity;
-        LoginResponse loginResponse;
-
-        UserDTO userDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
-        loginResponse   = LoginResponse.success(userDTO);
+        UserDTO userDTO             = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
+        LoginResponse loginResponse = LoginResponse.success(userDTO);
         httpSession.setAttribute("USER_ID", userDTO.getUserId());
-        rspResponseEntity = new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
-        return rspResponseEntity;
+
+        return new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
     }
 
     /**
@@ -115,21 +111,26 @@ public class CustomerController {
     }
 
     /**
-     * 회원 탈퇴
+     * 회원탈퇴
+     * @param id
      * @param httpSession
      * @return
      */
-    @DeleteMapping(value = "/info")
-    public ResponseEntity<DbResponse> deleteUserInfo(HttpSession httpSession) {
+    @DeleteMapping(value = "/{id}/info")
+    public ResponseEntity<DbResponse> deleteUserInfo(@PathVariable String id,  HttpSession httpSession) {
+
         ResponseEntity<DbResponse> responseEntity;
-        DbResponse dbResponse;
+        String sessionId = httpSession.getAttribute("USER_ID").toString();
 
-        String id = httpSession.getAttribute("USER_ID").toString();
+        if(!sessionId.equals(id)) {
+            responseEntity = new ResponseEntity<>(DbResponse.ERROR, HttpStatus.FORBIDDEN);
+            return responseEntity;
+        }
+
         userService.deleteUserInfo(id);
-
-        dbResponse = DbResponse.SUCCESS;
         httpSession.invalidate();
-        responseEntity = new ResponseEntity<>(dbResponse, HttpStatus.OK);
+
+        responseEntity = new ResponseEntity<>(DbResponse.SUCCESS, HttpStatus.OK);
         return responseEntity;
     }
 
@@ -138,18 +139,20 @@ public class CustomerController {
      * @param httpSession
      * @return
      */
-    @GetMapping(value = "/info")
-    public Resource<UserDTO> getUserInfo(HttpSession httpSession) {
+    @GetMapping(value = "/{id}/info")
+    public Resource<UserDTO> getUserInfo(@PathVariable String id, HttpSession httpSession) {
 
-        String id = httpSession.getAttribute("USER_ID").toString();
-        UserDTO userDTO = userService.getUserInfo(id);
+        String sessionId    = httpSession.getAttribute("USER_ID").toString();
+        UserDTO userDTO     = userService.getUserInfo(id);
+
+        // 여기서도 위의 탈퇴(DeleteMapping)와 같이 PathVariable을 통해 받아온 id 값을 Session 값과 비교하고 싶은데,
+        // Return 값( Resource<UserDTO> )을 무엇으로 지정해야 할지 모르겠습니다. 이럴 경우 어떻게 처리해야 하는게 좋을까요? 단순히 return 값을 Object로 하는 것이 아니라 다른 일관된 방법이 있을까요?
 
         Link link = ControllerLinkBuilder.
-                linkTo(ControllerLinkBuilder.methodOn(CustomerController.class).deleteUserInfo(httpSession))
+                linkTo(ControllerLinkBuilder.methodOn(CustomerController.class).deleteUserInfo(id, httpSession))
                 .withRel("DeleteUserInfo");
 
-        Resource<UserDTO> result = new Resource<>(userDTO, link);
-        return result;
+        return new Resource<>(userDTO, link);
     }
 
     @Getter
@@ -162,9 +165,10 @@ public class CustomerController {
         @NonNull
         private DbStatus result;
 
-        private static final DbResponse SUCCESS = new DbResponse(DbStatus.SUCCESS);
-        private static final DbResponse FAIL    = new DbResponse(DbStatus.FAIL);
-        private static final DbResponse NO_DATA    = new DbResponse(DbStatus.NO_DATA);
+        private static final DbResponse SUCCESS     = new DbResponse(DbStatus.SUCCESS);
+        private static final DbResponse FAIL        = new DbResponse(DbStatus.FAIL);
+        private static final DbResponse NO_DATA     = new DbResponse(DbStatus.NO_DATA);
+        private static final DbResponse ERROR       = new DbResponse(DbStatus.ERROR);
     }
 
     @Getter
