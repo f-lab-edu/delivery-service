@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import me.naming.delieveryservice.dto.ResponseDTO;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +30,6 @@ public class CustomerController {
     @Autowired
     private UserService userService;
 
-    private static final ResponseEntity CREATE_SUCCESS = new ResponseEntity<String>("SUCCESS", HttpStatus.CREATED);
-
     /**
      * 고객 회원가입 메서드
      *  - ResponseEntity란 HttpEntity를 상속받은 클래스로써, Http의 Header와 Body 관련 정보를 저장 할 수 있게 해준다.
@@ -40,10 +38,10 @@ public class CustomerController {
      * @return
      */
     @PostMapping(value = "/signup" )
-    public ResponseEntity<SignUpResponse> signUpUserInfo(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<ResponseDTO> signUpUserInfo(@RequestBody UserDTO userDTO) {
 
         userService.insertUserInfo(userDTO);
-        return CREATE_SUCCESS;
+        return new ResponseEntity<>(ResponseDTO.SUCCESS, HttpStatus.CREATED);
     }
 
     /**
@@ -52,21 +50,13 @@ public class CustomerController {
      * @return
      */
     @GetMapping(value = "/{id}/exists")
-    public ResponseEntity<CustomerIdDuplResponse> checkIdDuplicate(@PathVariable String id) {
-
-        ResponseEntity<CustomerIdDuplResponse>  responseResponseEntity;
-        CustomerIdDuplResponse                  customerIdDuplResponse;
+    public ResponseEntity<ResponseDTO> checkIdDuplicate(@PathVariable String id) {
 
         boolean idCheck = userService.checkIdDuplicate(id);
         if(idCheck) {
-            customerIdDuplResponse = CustomerIdDuplResponse.DUPLICATED;
-            responseResponseEntity = new ResponseEntity<>(customerIdDuplResponse, HttpStatus.CONFLICT);
-            return responseResponseEntity;
+            return new ResponseEntity<>(ResponseDTO.DUPLICATE, HttpStatus.CONFLICT);
         }
-
-        customerIdDuplResponse = CustomerIdDuplResponse.SUCCESS;
-        responseResponseEntity = new ResponseEntity<>(customerIdDuplResponse, HttpStatus.OK);
-        return responseResponseEntity;
+        return new ResponseEntity<>(ResponseDTO.SUCCESS, HttpStatus.OK);
     }
 
     /**
@@ -76,13 +66,10 @@ public class CustomerController {
      * @return
      */
     @PostMapping(value = "/login")
-    public ResponseEntity<LoginResponse> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
-
-        UserDTO userDTO             = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
-        LoginResponse loginResponse = LoginResponse.success(userDTO);
+    public ResponseEntity<ResponseDTO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
+        UserDTO userDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
         httpSession.setAttribute("USER_ID", userDTO.getUserId());
-
-        return new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
+        return new ResponseEntity<>(ResponseDTO.SUCCESS, HttpStatus.OK);
     }
 
     /**
@@ -91,23 +78,11 @@ public class CustomerController {
      * @param httpSession
      * @return
      */
-    @PatchMapping(value = "/password")
-    public ResponseEntity<DbResponse> updatePwd(@RequestBody UserChgPwd userChgPwd, HttpSession httpSession) {
-
-        ResponseEntity<DbResponse> responseEntity;
-        DbResponse dbResponse;
-
-        String userId = httpSession.getAttribute("USER_ID").toString();
-        if(userId == null) {
-            dbResponse = DbResponse.NO_DATA;
-            responseEntity = new ResponseEntity<>(dbResponse, HttpStatus.UNAUTHORIZED);
-            return responseEntity;
-        }
-
-        userService.updatePwd(userId, userChgPwd.getNewPassword());
-        dbResponse = DbResponse.SUCCESS;
-        responseEntity = new ResponseEntity<>(dbResponse, HttpStatus.OK);
-        return responseEntity;
+    @PatchMapping(value = "/{id}/password")
+    public ResponseEntity<ResponseDTO> updatePwd(@RequestBody UserChgPwd userChgPwd, @PathVariable String id, HttpSession httpSession) {
+        ResponseDTO.checkId(httpSession, id);
+        userService.updatePwd(id, userChgPwd.getNewPassword());
+        return new ResponseEntity<>(ResponseDTO.SUCCESS, HttpStatus.OK);
     }
 
     /**
@@ -117,21 +92,12 @@ public class CustomerController {
      * @return
      */
     @DeleteMapping(value = "/{id}/info")
-    public ResponseEntity<DbResponse> deleteUserInfo(@PathVariable String id,  HttpSession httpSession) {
+    public ResponseEntity<ResponseDTO> deleteUserInfo(@PathVariable String id,  HttpSession httpSession) {
 
-        ResponseEntity<DbResponse> responseEntity;
-        String sessionId = httpSession.getAttribute("USER_ID").toString();
-
-        if(!sessionId.equals(id)) {
-            responseEntity = new ResponseEntity<>(DbResponse.ERROR, HttpStatus.FORBIDDEN);
-            return responseEntity;
-        }
-
+        ResponseDTO.checkId(httpSession, id);
         userService.deleteUserInfo(id);
         httpSession.invalidate();
-
-        responseEntity = new ResponseEntity<>(DbResponse.SUCCESS, HttpStatus.OK);
-        return responseEntity;
+        return new ResponseEntity<>(ResponseDTO.SUCCESS, HttpStatus.OK);
     }
 
     /**
@@ -142,83 +108,13 @@ public class CustomerController {
     @GetMapping(value = "/{id}/info")
     public Resource<UserDTO> getUserInfo(@PathVariable String id, HttpSession httpSession) {
 
-        String sessionId    = httpSession.getAttribute("USER_ID").toString();
-        UserDTO userDTO     = userService.getUserInfo(id);
-
-        // 여기서도 위의 탈퇴(DeleteMapping)와 같이 PathVariable을 통해 받아온 id 값을 Session 값과 비교하고 싶은데,
-        // Return 값( Resource<UserDTO> )을 무엇으로 지정해야 할지 모르겠습니다. 이럴 경우 어떻게 처리해야 하는게 좋을까요? 단순히 return 값을 Object로 하는 것이 아니라 다른 일관된 방법이 있을까요?
-
+        ResponseDTO.checkId(httpSession, id);
+        UserDTO userDTO = userService.getUserInfo(id);
         Link link = ControllerLinkBuilder.
                 linkTo(ControllerLinkBuilder.methodOn(CustomerController.class).deleteUserInfo(id, httpSession))
                 .withRel("DeleteUserInfo");
 
         return new Resource<>(userDTO, link);
-    }
-
-    @Getter
-    @RequiredArgsConstructor
-    private static class DbResponse {
-        enum DbStatus {
-            SUCCESS, FAIL, ERROR, NO_DATA
-        }
-
-        @NonNull
-        private DbStatus result;
-
-        private static final DbResponse SUCCESS     = new DbResponse(DbStatus.SUCCESS);
-        private static final DbResponse FAIL        = new DbResponse(DbStatus.FAIL);
-        private static final DbResponse NO_DATA     = new DbResponse(DbStatus.NO_DATA);
-        private static final DbResponse ERROR       = new DbResponse(DbStatus.ERROR);
-    }
-
-    @Getter
-    @RequiredArgsConstructor
-    private static class SignUpResponse {
-        enum SignUpStatus {
-            SUCCESS, ID_DUPLICATED, ERROR, NULL_ARGUMENT
-        }
-
-        @NonNull
-        private SignUpStatus result;
-
-        private static final SignUpResponse SUCCESS         = new SignUpResponse(SignUpStatus.SUCCESS);
-        private static final SignUpResponse ID_DUPLICATED   = new SignUpResponse(SignUpStatus.ID_DUPLICATED);
-    }
-
-    @Getter
-    @RequiredArgsConstructor
-    private static class CustomerIdDuplResponse {
-        enum DuplStatus {
-            SUCCESS, ID_DUPLICATED, ERROR
-        }
-
-        @NonNull
-        private DuplStatus result;
-
-        private static final CustomerIdDuplResponse SUCCESS     = new CustomerIdDuplResponse(DuplStatus.SUCCESS);
-        private static final CustomerIdDuplResponse DUPLICATED  = new CustomerIdDuplResponse(DuplStatus.ID_DUPLICATED);
-    }
-
-    @Getter
-    @AllArgsConstructor
-    @RequiredArgsConstructor
-    private static class LoginResponse {
-        enum LogInStatus {
-            SUCCESS, FAIL, DELETED, ERROR
-        }
-
-        @NonNull
-        private LogInStatus result;
-        private UserDTO memberInfo;
-
-        // success의 경우 memberInfo의 값을 set해줘야 하기 때문에 new 하도록 해준다.
-
-        private static final LoginResponse FAIL = new LoginResponse(LogInStatus.FAIL);
-        private static final LoginResponse DELETED = new LoginResponse(LogInStatus.DELETED);
-
-        private static LoginResponse success(UserDTO userDTO) {
-            return new LoginResponse(LogInStatus.SUCCESS, userDTO);
-        }
     }
 
     //--------------- Body로 Request 받을 데이터 지정 ---------------
