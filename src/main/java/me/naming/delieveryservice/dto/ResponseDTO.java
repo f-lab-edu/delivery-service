@@ -1,10 +1,12 @@
 package me.naming.delieveryservice.dto;
 
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import javax.servlet.http.HttpSession;
 
+@Getter
 @RequiredArgsConstructor
 public class ResponseDTO {
     enum ResponseStatus{
@@ -24,13 +26,12 @@ public class ResponseDTO {
      * @param pathVariable
      */
     public static void checkId(HttpSession httpSession, String pathVariable) {
-        String sessionId = httpSession.getAttribute("USER_ID").toString();
-        if(sessionId == null || pathVariable == null) {
-            new RuntimeException("Session('USER_ID') or PathVariable is not exists");
-        }
-        if(!sessionId.equals(pathVariable)) {
-            new RuntimeException("Sssions('USER_ID') PathVariable is not same");
+        if(httpSession.getAttribute("USER_ID") == null || pathVariable == null) {
+            throw new RuntimeException("Session('USER_ID') or PathVariable is not exists");
         }
 
+        if(!httpSession.getAttribute("USER_ID").toString().equals(pathVariable)) {
+            throw new RuntimeException("Session('USER_ID'), PathVariable is not same");
+        }
     }
 }
