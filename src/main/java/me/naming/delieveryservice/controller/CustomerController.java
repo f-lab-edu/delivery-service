@@ -1,9 +1,11 @@
 package me.naming.delieveryservice.controller;
 
+import java.util.concurrent.TimeUnit;
 import lombok.*;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
@@ -24,6 +26,7 @@ import javax.servlet.http.HttpSession;
 public class CustomerController {
 
   @Autowired private UserService userService;
+  @Autowired private RedisTemplate redisTemplate;
 
   /**
    * 고객 회원가입 메서드
@@ -66,9 +69,12 @@ public class CustomerController {
   public ResponseEntity<ResponseResult> userLogin(
       @RequestBody UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
 
-    UserDTO userDTO =
-        userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
-    httpSession.setAttribute("USER_ID", userDTO.getUserId());
+    UserDTO userDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
+
+    String sessionId = httpSession.getId();
+    httpSession.setAttribute(userDTO.getUserId(), sessionId);
+
+    redisTemplate.opsForValue().set(userDTO.getUserId(), sessionId, 5, TimeUnit.MINUTES);
     return new ResponseEntity<>(ResponseResult.SUCCESS, HttpStatus.OK);
   }
 
