@@ -8,13 +8,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserDao {
 
-    int insertUserInfo(UserDTO userDTO);
-    int checkIdDuplicate(String id);
-    UserDTO userLogin(String id, String password);
-    int updatePwd(String id, String newPassword);
+  int insertUserInfo(UserDTO userDTO);
 
-    int deleteUserInfo(String id);
+  int checkIdDuplicate(String id);
 
-    UserDTO getUserInfo(String id);
+  UserDTO userLogin(String id, String password);
 
+  int updatePwd(String id, String newPassword);
+
+  int deleteUserInfo(String id);
+
+  UserDTO getUserInfo(String id);
 }

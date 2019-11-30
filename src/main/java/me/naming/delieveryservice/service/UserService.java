@@ -1,13 +1,11 @@
 package me.naming.delieveryservice.service;
 
-import lombok.extern.slf4j.Slf4j;
 import me.naming.delieveryservice.dao.UserDao;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.utils.SHA256Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @Service("UserService")
 public class UserService {
 
