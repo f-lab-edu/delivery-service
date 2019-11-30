@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="me.naming.delieveryservice.dao.DeliveryDao">
+
+  <resultMap id="reqDeliveryInfo" type="me.naming.delieveryservice.dto.DeliveryDTO">
+    <result property="orderNum"       column="ORDER_NUM" />
+    <result property="reqDate"        column="DATE_CREATION" />
+    <result property="orderStatus"    column="ORDER_STATUS" />
+    <result property="arrTime"        column="ARRIVAL_TIME" />
+    <result property="exArrTime"      column="EX_ARRIVAL_TIME" />
+
+    <result property="userId"         column="CUSTOMER_ID" />
+    <result property="deliveryId"     column="DELIVERY_ID" />
+    <result property="dprtureCode"    column="PID_STRT_ADDRESS_CODE" />
+    <result property="dprtureDetail"  column="STRT_ADDRESS_DETAIL" />
+    <result property="dstinCode"      column="PID_DEST_ADDRESS_CODE" />
+    <result property="dstinDetail"    column="DEST_ADDRESS_DETAIL" />
+  </resultMap>
+
+  
+
+</mapper>
