@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 
 @Mapper
 @Repository
-public interface DeliveryDao {
+public interface OrderDao {
 
-
+  int reqOrder(String userId, int dprtCode, String dprtDetail, int dstinCode, String dstinDetail);
 }
