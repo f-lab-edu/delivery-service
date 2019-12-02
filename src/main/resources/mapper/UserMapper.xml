@@ -4,7 +4,6 @@
 <mapper namespace="me.naming.delieveryservice.dao.UserDao">
 
     <resultMap id="userInfo" type="me.naming.delieveryservice.dto.UserDTO">
-        <result property="pidNum"       column="PID_NUM" />
         <result property="userId"       column="ID" />
         <result property="password"     column="PASSWORD" />
         <result property="mobileNum"    column="MOBILE_NUM" />
@@ -24,7 +23,7 @@
     </select>
 
     <select id="userLogin" resultMap="userInfo">
-        SELECT PID_NUM, ID, PASSWORD, MOBILE_NUM
+        SELECT ID, PASSWORD, MOBILE_NUM
         FROM USER_BASE
         WHERE id = #{id}
         AND password = #{password}
