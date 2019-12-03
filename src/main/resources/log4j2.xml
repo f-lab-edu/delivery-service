@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" monitorInterval="30">
+  <Properties>
+    <Property name="LOG_FORMAT">%d{HH:mm} %-5level %logger{36} - %msg%n</Property>
+
+    <Property name="LOGS_ABSOLUTE_PATH" value="./logs" />
+  </Properties>
+
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT" follow="true">
+      <PatternLayout pattern="${LOG_FORMAT}"/>
+    </Console>
+
+    <RollingFile name="File" fileName="${LOGS_ABSOLUTE_PATH}/log4j2.log" filePattern="${LOGS_ABSOLUTE_PATH}/log4j2.%d{yyyyMMdd}.log">
+
+      <PatternLayout pattern="${LOG_FORMAT}"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+      </Policies>
+
+      <DefaultRolloverStrategy>
+        <Delete basePath="${LOGS_ABSOLUTE_PATH}">
+          <IfFileName glob="*.log"/>
+          <IfLastModified age="30d"/>
+        </Delete>
+      </DefaultRolloverStrategy>
+
+    </RollingFile>
+  </Appenders>
+
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="File"/>
+    </Root>
+  </Loggers>
+</Configuration>
