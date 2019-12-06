@@ -1,14 +1,13 @@
 package me.naming.delieveryservice.controller;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.dto.UserDTO;
+import me.naming.delieveryservice.service.OrderService;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
@@ -32,11 +31,11 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/customers")
-@AllArgsConstructor
+@Log4j2
 public class CustomerController {
 
   @Autowired private UserService userService;
-  @Autowired private RedisTemplate redisTemplate;
+  @Autowired private OrderService orderService;
 
   /**
    * 고객 회원가입 메서드
@@ -46,89 +45,80 @@ public class CustomerController {
    * @return
    */
   @PostMapping(value = "/signup")
-  public ResponseEntity<ResponseResult> signUpUserInfo(@RequestBody UserDTO userDTO) {
+  public ResponseEntity signUpUserInfo(@RequestBody UserDTO userDTO) {
 
     userService.insertUserInfo(userDTO);
-    return new ResponseEntity<>(ResponseResult.SUCCESS, HttpStatus.CREATED);
+    return ResponseResult.CREATE.getResponseEntity();
   }
 
   /**
    * ID 중복체크 메서드
-   *
    * @param id DB에서 조회할 사용자 ID
    * @return
    */
   @GetMapping(value = "/{id}/exists")
-  public ResponseEntity<ResponseResult> checkIdDuplicate(@PathVariable String id) {
+  public ResponseEntity checkIdDuplicate(@PathVariable String id) {
 
     boolean idCheck = userService.checkIdDuplicate(id);
-    if (idCheck) {
+    if (idCheck)
       return new ResponseEntity<>(ResponseResult.DUPLICATE, HttpStatus.CONFLICT);
-    }
-    return new ResponseEntity<>(ResponseResult.SUCCESS, HttpStatus.OK);
+
+    return ResponseResult.OK.getResponseEntity();
   }
 
   /**
    * 로그인을 하기 위한 메서드
-   *
    * @param userLoginRequest 로그인(id, password) 정보
    * @param httpSession 세션 저장
    * @return
    */
   @PostMapping(value = "/login")
-  public ResponseEntity<ResponseResult> userLogin(
+  public ResponseEntity userLogin(
       @RequestBody UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
 
     UserDTO userDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
-    String sessionId = httpSession.getId();
-    httpSession.setAttribute(userDTO.getUserId(), sessionId);
+    httpSession.setAttribute("USER_ID", userDTO.getUserId());
 
-    return new ResponseEntity<>(ResponseResult.SUCCESS, HttpStatus.OK);
+    return ResponseResult.OK.getResponseEntity();
   }
 
   /**
    * 비밀번호를 변경하기 위한 메서드
-   *
    * @param userChgPwd
    * @param httpSession
    * @return
    */
   @PatchMapping(value = "/{id}/password")
-  public ResponseEntity<ResponseResult> updatePwd(
+  public ResponseEntity updateUserInfo(
       @RequestBody UserChgPwd userChgPwd, @PathVariable String id, HttpSession httpSession) {
 
-    checkUserId(httpSession, id);
     userService.updatePwd(id, userChgPwd.getNewPassword());
-    return new ResponseEntity<>(ResponseResult.SUCCESS, HttpStatus.OK);
+    return ResponseResult.OK.getResponseEntity();
   }
 
   /**
    * 회원탈퇴
-   *
    * @param id
    * @param httpSession
    * @return
    */
   @DeleteMapping(value = "/{id}/info")
-  public ResponseEntity<ResponseResult> deleteUserInfo(
+  public ResponseEntity deleteUserInfo(
       @PathVariable String id, HttpSession httpSession) {
 
-    checkUserId(httpSession, id);
     userService.deleteUserInfo(id);
     httpSession.invalidate();
-    return new ResponseEntity<>(ResponseResult.SUCCESS, HttpStatus.OK);
+    return ResponseResult.OK.getResponseEntity();
   }
 
   /**
    * 회원정보 조회
-   *
    * @param httpSession
    * @return
    */
   @GetMapping(value = "/{id}/info")
   public Resource<UserDTO> getUserInfo(@PathVariable String id, HttpSession httpSession) {
 
-    checkUserId(httpSession, id);
     UserDTO userDTO = userService.getUserInfo(id);
     Link link =
         ControllerLinkBuilder.linkTo(
@@ -139,53 +129,52 @@ public class CustomerController {
     return new Resource<>(userDTO, link);
   }
 
-
   /**
-   * 사용자 ID 체크
-   * @param httpSession
+   * 배달주소지 등록
    * @param id
+   * @param addressInfo
+   * @return
    */
-  private void checkUserId(HttpSession httpSession, String id) {
-    String sessionId;
+  @PostMapping("/{id}/delivery/location")
+  public ResponseEntity reqOrder(
+      @PathVariable String id, @RequestBody AddressInfo addressInfo) {
 
-    try{
-      sessionId = httpSession.getAttribute("USER_ID").toString();
-    } catch (NullPointerException e) {
-      throw new NullPointerException("Session('USER_ID') is not exists");
-    }
-
-    if(id == null)
-      throw new NullPointerException("PathVariable Id is not exists");
-    if(!sessionId.equals(id))
-      throw new IllegalArgumentException("Session('USER_ID') PathVariable Id is not same");
+    orderService.reqOrder(
+        id,
+        addressInfo.getDepartureCode(),
+        addressInfo.getDepartureDetail(),
+        addressInfo.getDestinationCode(),
+        addressInfo.getDepartureDetail());
+    return ResponseResult.CREATE.getResponseEntity();
   }
 
   @Getter
   @RequiredArgsConstructor
-  private static class ResponseResult {
-    enum ResponseStatus{
-      SUCCESS, FAIL, DUPLICATE
-    }
+  private enum ResponseResult {
+    OK(new ResponseEntity(HttpStatus.OK)),
+    CREATE(new ResponseEntity(HttpStatus.CREATED)),
+    DUPLICATE(new ResponseEntity(HttpStatus.CONFLICT));
 
-    @NonNull
-    private ResponseStatus result;
-
-    private static ResponseResult SUCCESS = new ResponseResult(ResponseStatus.SUCCESS);
-    private static ResponseResult FAIL = new ResponseResult(ResponseStatus.FAIL);
-    private static ResponseResult DUPLICATE = new ResponseResult(ResponseStatus.DUPLICATE);
+    private final ResponseEntity responseEntity;
   }
 
   // --------------- Body로 Request 받을 데이터 지정 ---------------
   @Getter
-  @Setter
   private static class UserLoginRequest {
     @NonNull String userId;
     @NonNull String password;
   }
 
   @Getter
-  @Setter
   private static class UserChgPwd {
     @NonNull String newPassword;
+  }
+
+  @Getter
+  private static class AddressInfo {
+    @NonNull int departureCode;
+    @NonNull String departureDetail;
+    @NonNull int destinationCode;
+    @NonNull String destinationDetail;
   }
 }
