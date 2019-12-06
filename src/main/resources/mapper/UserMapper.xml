@@ -4,11 +4,12 @@
 <mapper namespace="me.naming.delieveryservice.dao.UserDao">
 
     <resultMap id="userInfo" type="me.naming.delieveryservice.dto.UserDTO">
+        <result property="userNum"       column="USER_NUM" />
         <result property="userId"       column="ID" />
         <result property="password"     column="PASSWORD" />
         <result property="mobileNum"    column="MOBILE_NUM" />
         <result property="name"         column="NAME" />
-        <result property="birthdate"    column="BIRTHDATE" />
+        <result property="birthday"    column="BIRTHDAY" />
     </resultMap>
 
     <insert id="insertUserInfo" parameterType="me.naming.delieveryservice.dto.UserDTO">
@@ -30,7 +31,7 @@
     </select>
 
     <select id="getUserInfo" resultMap="userInfo">
-        SELECT STATUS, ID, PASSWORD, MOBILE_NUM, NAME, BIRTHDATE
+        SELECT STATUS, ID, PASSWORD, MOBILE_NUM, NAME, BIRTHDAY
         FROM USER_BASE
         WHERE ID = #{id}
     </select>

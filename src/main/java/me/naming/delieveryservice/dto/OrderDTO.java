@@ -18,8 +18,8 @@ public class OrderDTO extends ResourceSupport {
 
   private String userId;
   private String deliveryId;
-  private int dprtCode;
-  private String dprtDetail;
-  private int dstinCode;
-  private String dstinDetail;
+  private int departureCode;
+  private String departureDetail;
+  private int destinationCode;
+  private String destinationDetail;
 }

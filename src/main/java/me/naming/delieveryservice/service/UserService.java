@@ -6,7 +6,7 @@ import me.naming.delieveryservice.utils.SHA256Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("UserService")
+@Service
 public class UserService {
 
   @Autowired private UserDao userDao;

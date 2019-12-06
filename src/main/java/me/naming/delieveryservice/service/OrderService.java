@@ -4,7 +4,7 @@ import me.naming.delieveryservice.dao.OrderDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("OrderService")
+@Service
 public class OrderService {
 
   @Autowired private OrderDao orderDao;
