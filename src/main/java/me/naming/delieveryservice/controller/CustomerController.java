@@ -48,7 +48,7 @@ public class CustomerController {
   public ResponseEntity signUpUserInfo(@RequestBody UserDTO userDTO) {
 
     userService.insertUserInfo(userDTO);
-    return ResponseResult.CREATE.getResponseEntity();
+    return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
   /**
@@ -61,9 +61,9 @@ public class CustomerController {
 
     boolean idCheck = userService.checkIdDuplicate(id);
     if (idCheck)
-      return new ResponseEntity<>(ResponseResult.DUPLICATE, HttpStatus.CONFLICT);
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
 
-    return ResponseResult.OK.getResponseEntity();
+    return ResponseEntity.ok().build();
   }
 
   /**
@@ -79,7 +79,7 @@ public class CustomerController {
     UserDTO userDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
     httpSession.setAttribute("USER_ID", userDTO.getUserId());
 
-    return ResponseResult.OK.getResponseEntity();
+    return ResponseEntity.ok().build();
   }
 
   /**
@@ -93,7 +93,7 @@ public class CustomerController {
       @RequestBody UserChgPwd userChgPwd, @PathVariable String id, HttpSession httpSession) {
 
     userService.updatePwd(id, userChgPwd.getNewPassword());
-    return ResponseResult.OK.getResponseEntity();
+    return ResponseEntity.ok().build();
   }
 
   /**
@@ -108,7 +108,7 @@ public class CustomerController {
 
     userService.deleteUserInfo(id);
     httpSession.invalidate();
-    return ResponseResult.OK.getResponseEntity();
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   /**
@@ -116,9 +116,14 @@ public class CustomerController {
    * @param httpSession
    * @return
    */
-  @GetMapping(value = "/{id}/info")
-  public Resource<UserDTO> getUserInfo(@PathVariable String id, HttpSession httpSession) {
+  @GetMapping(value = "/info")
+  public Resource<UserDTO> userInfo(HttpSession httpSession) {
 
+    Object data = httpSession.getAttribute("USER_ID");
+    if(data == null)
+      throw new IllegalStateException("Session('USER_ID') is not exists");
+
+    String id = data.toString();
     UserDTO userDTO = userService.getUserInfo(id);
     Link link =
         ControllerLinkBuilder.linkTo(
@@ -145,17 +150,7 @@ public class CustomerController {
         addressInfo.getDepartureDetail(),
         addressInfo.getDestinationCode(),
         addressInfo.getDepartureDetail());
-    return ResponseResult.CREATE.getResponseEntity();
-  }
-
-  @Getter
-  @RequiredArgsConstructor
-  private enum ResponseResult {
-    OK(new ResponseEntity(HttpStatus.OK)),
-    CREATE(new ResponseEntity(HttpStatus.CREATED)),
-    DUPLICATE(new ResponseEntity(HttpStatus.CONFLICT));
-
-    private final ResponseEntity responseEntity;
+    return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
   // --------------- Body로 Request 받을 데이터 지정 ---------------
