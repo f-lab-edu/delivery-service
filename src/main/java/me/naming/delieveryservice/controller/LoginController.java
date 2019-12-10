@@ -38,13 +38,15 @@ public class LoginController {
      * 고객 회원가입 메서드
      *  - ResponseEntity란 HttpEntity를 상속받은 클래스로써, Http의 Header와 Body 관련 정보를 저장 할 수 있게 해준다.
      *  - HttpStatus를 활용해 Header 값에 정확한 상태 값(ex. 200 성공, 400 에러 등)을 전달 할 수 있으며, 헤더에 추가로 데이터 값을 넣어줄 수도 있다.
+     *
+     * http 헤더중 Location은 post 동작 완료 후 리다이렉션 URL을 지정해주는 정보이다. 즉, 어느 페이지로 이동할지를 알려주는 헤더
      * @param userDTO 저장할 회원정보
      * @return
      */
     @RequestMapping(method = RequestMethod.POST, value = "/signup" )
     public ResponseEntity signUpUserInfo(@RequestBody UserDTO userDTO) {
         userService.insertUserInfo(userDTO);
-        URI uri = ControllerLinkBuilder.linkTo(LoginController.class).slash("signup").toUri();
+        URI uri = ControllerLinkBuilder.linkTo(LoginController.class).toUri();
         return ResponseEntity.created(uri).build();
     }
 
