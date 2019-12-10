@@ -48,13 +48,17 @@ public class UserService {
      */
     public UserDTO userLogin(String id, String password) {
 
-        String encryptPwd = SHA256Util.encrypt(password);
-        UserDTO userDTO = userDao.userLogin(id, encryptPwd);
-        return userDTO;
+      String encryptPwd = SHA256Util.encrypt(password);
+      UserDTO userDTO = userDao.userLogin(id, encryptPwd);
+
+      if(userDTO == null)
+        throw new RuntimeException("User Info is not exists. Check the Id or Password");
+
+      return userDTO;
     }
 
     /**
-     * 사용자 정보 삭제하기 위한 메소드
+     * 사용자 비밀번호 update 메서드
      * @param id
      * @param newPassword
      */
@@ -62,18 +66,21 @@ public class UserService {
 
         String encryptPwd = SHA256Util.encrypt(newPassword);
         int udtResult = userDao.updatePwd(id, encryptPwd);
-        if(udtResult != 1) {
-            throw new RuntimeException(
-                    "update Password Error");
-        }
+        if (udtResult == 0)
+            throw new RuntimeException("User ID is not exists");
+
     }
 
-    public void deleteUserInfo(String id){
+    /**
+     * 사용자 정보 삭제 메서드
+     * @param id
+     */
+    public void deleteUserInfo(String id) {
 
         int udtResult = userDao.deleteUserInfo(id);
-        if(udtResult != 1) {
-            throw new RuntimeException("deleteUserInfo Error");
-        }
+        if (udtResult == 0)
+            throw new RuntimeException("User ID is not exists");
+
     }
 }
 

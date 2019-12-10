@@ -1,6 +1,7 @@
 package me.naming.delieveryservice.controller;
 
 
+import java.net.URI;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,10 +10,16 @@ import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Lombok을 활용한 생성자 자동생성
@@ -21,7 +28,7 @@ import javax.servlet.http.HttpSession;
  *  - @RequiredArgsConstructor final or @NonNull인 필드 값만 파라미터로 받는 생성자 생성
  */
 @RestController
-@RequestMapping("/customer")
+@RequestMapping("/customers")
 public class LoginController {
 
     @Autowired
@@ -34,13 +41,11 @@ public class LoginController {
      * @param userDTO 저장할 회원정보
      * @return
      */
-    @RequestMapping(method = RequestMethod.POST, value = "/sign-up" )
-    public ResponseEntity<SignUpResponse> signUpUserInfo(@RequestBody UserDTO userDTO) {
-        ResponseEntity<SignUpResponse> responseEntity = null;
+    @RequestMapping(method = RequestMethod.POST, value = "/signup" )
+    public ResponseEntity signUpUserInfo(@RequestBody UserDTO userDTO) {
         userService.insertUserInfo(userDTO);
-        SignUpResponse result = SignUpResponse.SUCCESS;
-        responseEntity = new ResponseEntity<SignUpResponse>(result, HttpStatus.CREATED);
-        return responseEntity;
+        URI uri = ControllerLinkBuilder.linkTo(LoginController.class).slash("signup").toUri();
+        return ResponseEntity.created(uri).build();
     }
 
     /**
@@ -75,20 +80,11 @@ public class LoginController {
     @RequestMapping(method = RequestMethod.POST, value = "/login")
     public ResponseEntity<LoginResponse> userLogin(@RequestBody  UserLoginRequest userLoginRequest, HttpSession httpSession) {
 
-        ResponseEntity<LoginResponse> rspResponseEntity;
-        LoginResponse loginResponse;
 
         UserDTO userDTO = userService.userLogin(userLoginRequest.getId(), userLoginRequest.getPassword());
-        if(userDTO == null) {
-            loginResponse = LoginResponse.FAIL;
-            rspResponseEntity = new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.UNAUTHORIZED);
-            return rspResponseEntity;
-        }
-
-        loginResponse = LoginResponse.success(userDTO);
         httpSession.setAttribute("USER_ID", userDTO.getId());
-        rspResponseEntity = new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
-        return rspResponseEntity;
+
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -116,18 +112,12 @@ public class LoginController {
         return responseEntity;
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/user-info")
-    public ResponseEntity<DbResponse> deleteUserInfo(HttpSession httpSession) {
-        ResponseEntity<DbResponse> responseEntity;
-        DbResponse dbResponse;
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{id}/info")
+    public ResponseEntity deleteUserInfo(@PathVariable String id, HttpSession httpSession) {
 
-        String id = httpSession.getAttribute("USER_ID").toString();
         userService.deleteUserInfo(id);
-
-        dbResponse = DbResponse.SUCCESS;
         httpSession.invalidate();
-        responseEntity = new ResponseEntity<>(dbResponse, HttpStatus.OK);
-        return responseEntity;
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @Getter
