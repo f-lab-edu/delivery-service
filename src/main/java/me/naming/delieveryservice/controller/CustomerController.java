@@ -1,15 +1,14 @@
 package me.naming.delieveryservice.controller;
 
+import java.net.URI;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.OrderService;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +45,11 @@ public class CustomerController {
    */
   @PostMapping(value = "/signup")
   public ResponseEntity signUpUserInfo(@RequestBody UserDTO userDTO) {
-
     userService.insertUserInfo(userDTO);
-    return ResponseEntity.status(HttpStatus.CREATED).build();
+
+    // http 헤더중 Location은 post 동작 완료 후 리다이렉션 URL을 지정해주는 정보이다. 즉, 어느 페이지로 이동할지를 알려주는 정보
+    URI uri = ControllerLinkBuilder.linkTo(CustomerController.class).toUri();
+    return ResponseEntity.created(uri).build();
   }
 
   /**
@@ -73,8 +74,7 @@ public class CustomerController {
    * @return
    */
   @PostMapping(value = "/login")
-  public ResponseEntity userLogin(
-      @RequestBody UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
+  public ResponseEntity userLogin(HttpSession httpSession, @RequestBody UserLoginRequest userLoginRequest) throws Exception {
 
     UserDTO userDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
     httpSession.setAttribute("USER_ID", userDTO.getUserId());
@@ -88,50 +88,41 @@ public class CustomerController {
    * @param httpSession
    * @return
    */
-  @PatchMapping(value = "/{id}/password")
-  public ResponseEntity updateUserInfo(
-      @RequestBody UserChgPwd userChgPwd, @PathVariable String id, HttpSession httpSession) {
+  @PatchMapping(value = "/password")
+  public ResponseEntity updateUserInfo(HttpSession httpSession, @RequestBody UserChgPwd userChgPwd) {
 
-    userService.updatePwd(id, userChgPwd.getNewPassword());
+    String userId = httpSession.getAttribute("USER_ID").toString();
+    userService.updatePwd(userId, userChgPwd.getNewPassword());
     return ResponseEntity.ok().build();
   }
 
   /**
    * 회원탈퇴
-   * @param id
    * @param httpSession
    * @return
    */
-  @DeleteMapping(value = "/{id}/info")
-  public ResponseEntity deleteUserInfo(
-      @PathVariable String id, HttpSession httpSession) {
+  @DeleteMapping(value = "/myinfo")
+  public ResponseEntity deleteUserInfo(HttpSession httpSession) {
 
-    userService.deleteUserInfo(id);
+    String userId = httpSession.getAttribute("USER_ID").toString();
+    userService.deleteUserInfo(userId);
     httpSession.invalidate();
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   /**
    * 회원정보 조회
-   * @param httpSession
+   * @param userId
    * @return
    */
-  @GetMapping(value = "/info")
-  public Resource<UserDTO> userInfo(HttpSession httpSession) {
+  @GetMapping(value = "/myinfo")
+  public ResponseEntity userInfo(String userId) {
 
-    Object data = httpSession.getAttribute("USER_ID");
-    if(data == null)
-      throw new IllegalStateException("Session('USER_ID') is not exists");
+    UserDTO userDTO = userService.getUserInfo(userId);
+    Link link = ControllerLinkBuilder.linkTo(CustomerController.class).slash("myinfo").withRel("DeleteUserInfo");
+    userDTO.add(link);
 
-    String id = data.toString();
-    UserDTO userDTO = userService.getUserInfo(id);
-    Link link =
-        ControllerLinkBuilder.linkTo(
-                ControllerLinkBuilder.methodOn(CustomerController.class)
-                    .deleteUserInfo(id, httpSession))
-            .withRel("DeleteUserInfo");
-
-    return new Resource<>(userDTO, link);
+    return ResponseEntity.ok(userDTO);
   }
 
   /**
@@ -150,7 +141,9 @@ public class CustomerController {
         addressInfo.getDepartureDetail(),
         addressInfo.getDestinationCode(),
         addressInfo.getDepartureDetail());
-    return ResponseEntity.status(HttpStatus.CREATED).build();
+
+    URI uri = ControllerLinkBuilder.linkTo(CustomerController.class).toUri();
+    return ResponseEntity.created(uri).build();
   }
 
   // --------------- Body로 Request 받을 데이터 지정 ---------------
