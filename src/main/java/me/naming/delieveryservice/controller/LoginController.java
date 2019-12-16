@@ -114,10 +114,10 @@ public class LoginController {
         return responseEntity;
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/{id}/info")
-    public ResponseEntity deleteUserInfo(@PathVariable String id, HttpSession httpSession) {
+    @RequestMapping(method = RequestMethod.PATCH, value = "/{id}/info")
+    public ResponseEntity changeUserStatus(@PathVariable String id, HttpSession httpSession) {
 
-        userService.deleteUserInfo(id);
+        userService.changeUserStatus(id);
         httpSession.invalidate();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

@@ -27,7 +27,7 @@
         WHERE id = #{id}
     </update>
 
-    <update id="deleteUserInfo">
+    <update id="changeUserStatus">
         UPDATE USER_BASE
         SET STATUS = 'DELETE',
         DATE_UPDATE = NOW()
