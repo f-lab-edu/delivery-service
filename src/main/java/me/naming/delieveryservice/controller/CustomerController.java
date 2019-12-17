@@ -1,6 +1,5 @@
 package me.naming.delieveryservice.controller;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/customers")
-@AllArgsConstructor
 public class CustomerController {
 
   @Autowired private UserService userService;
