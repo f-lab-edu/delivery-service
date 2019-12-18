@@ -115,9 +115,9 @@ public class LoginController {
     }
 
     @RequestMapping(method = RequestMethod.PATCH, value = "/{id}/info")
-    public ResponseEntity changeUserStatusToDelete(@PathVariable String id, HttpSession httpSession) {
+    public ResponseEntity changeUserStatus(@PathVariable String id, HttpSession httpSession) {
 
-        userService.changeUserStatusToDelete(id);
+        userService.changeUserStatus(id, "DELETE");
         httpSession.invalidate();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -204,5 +204,4 @@ public class LoginController {
         @NonNull
         String newPassword;
     }
-
 }

@@ -75,9 +75,9 @@ public class UserService {
      * 사용자 상태값(DEFAULT -> DELETE) 변경
      * @param id
      */
-    public void changeUserStatusToDelete(String id) {
+    public void changeUserStatus(String id, String status) {
 
-        int udtResult = userDao.changeUserStatusToDelete(id);
+        int udtResult = userDao.changeUserStatus(id, status);
         if (udtResult == 0)
             throw new RuntimeException("User ID is not exists");
 
