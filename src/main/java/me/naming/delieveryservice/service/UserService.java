@@ -72,15 +72,17 @@ public class UserService {
     }
 
     /**
-     * 사용자 상태값(DEFAULT -> DELETE) 변경
+     * 사용자 상태값(DEFAULT -> DELETE or DELETE -> DEFAULT) 변경
      * @param id
      */
     public void changeUserStatus(String id, String status) {
 
+        if(!status.equals("DEFAULT") && !status.equals("DELETE"))
+            throw new IllegalStateException("status값이 부적절합니다.");
+
         int udtResult = userDao.changeUserStatus(id, status);
         if (udtResult == 0)
             throw new RuntimeException("User ID is not exists");
-
     }
 }
 
