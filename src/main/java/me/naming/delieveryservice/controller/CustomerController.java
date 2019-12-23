@@ -4,6 +4,8 @@ import java.net.URI;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import me.naming.delieveryservice.aop.OnlyUserIdInterface;
+import me.naming.delieveryservice.aop.UserInterface;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.OrderService;
 import me.naming.delieveryservice.service.UserService;
@@ -21,6 +23,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * Lombok을 활용한 생성자 자동생성
@@ -88,24 +92,24 @@ public class CustomerController {
    * @param httpSession
    * @return
    */
+  @UserInterface
   @PatchMapping(value = "/password")
-  public ResponseEntity updateUserInfo(HttpSession httpSession, @RequestBody UserChgPwd userChgPwd) {
+  public ResponseEntity updateUserInfo(String userId, @RequestBody UserChgPwd userChgPwd) {
 
-    String userId = httpSession.getAttribute("USER_ID").toString();
     userService.updatePwd(userId, userChgPwd.getNewPassword());
     return ResponseEntity.ok().build();
   }
 
   /**
    * 회원탈퇴
-   * @param httpSession
+   * @param userId
    * @return
    */
   @DeleteMapping(value = "/myinfo")
-  public ResponseEntity deleteUserInfo(HttpSession httpSession) {
+  public ResponseEntity deleteUserInfo(String userId) {
 
-    String userId = httpSession.getAttribute("USER_ID").toString();
     userService.deleteUserInfo(userId);
+    HttpSession httpSession = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest().getSession();
     httpSession.invalidate();
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
@@ -115,6 +119,7 @@ public class CustomerController {
    * @param userId
    * @return
    */
+  @OnlyUserIdInterface
   @GetMapping(value = "/myinfo")
   public ResponseEntity userInfo(String userId) {
 
@@ -131,6 +136,7 @@ public class CustomerController {
    * @param addressInfo
    * @return
    */
+  @UserInterface
   @PostMapping("/{id}/delivery/location")
   public ResponseEntity reqOrder(
       @PathVariable String id, @RequestBody AddressInfo addressInfo) {
