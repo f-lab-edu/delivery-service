@@ -1,12 +1,15 @@
 package me.naming.delieveryservice.controller;
 
 import java.net.URI;
+import java.util.List;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.aop.UserIdObjParam;
 import me.naming.delieveryservice.aop.UserIdParam;
 import me.naming.delieveryservice.dto.UserDTO;
+import me.naming.delieveryservice.dto.UserOrderListDTO;
+import me.naming.delieveryservice.service.OrderService;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
@@ -35,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CustomerController {
 
   @Autowired private UserService userService;
+  @Autowired private OrderService orderService;
 
   /**
    * 고객 회원가입 메서드
@@ -124,6 +128,19 @@ public class CustomerController {
     userDTO.add(link);
 
     return ResponseEntity.ok(userDTO);
+  }
+
+  /**
+   * 사용자 주문정보 불러오기
+   * @param userId
+   * @return
+   */
+  @UserIdParam
+  @GetMapping(value = "/orders")
+  public ResponseEntity userOrderList(String userId) {
+    List<UserOrderListDTO> orderList = orderService.userOrderList(userId);
+
+    return ResponseEntity.ok(orderList);
   }
 
   // --------------- Body로 Request 받을 데이터 지정 ---------------
