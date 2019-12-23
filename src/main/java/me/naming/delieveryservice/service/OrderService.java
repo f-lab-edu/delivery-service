@@ -9,7 +9,7 @@ public class OrderService {
 
   @Autowired private OrderDao orderDao;
 
-  public void reqOrder(String userId, int dprtCode, String dprtDetail, int dstinCode, String dstinDetail) {
-    orderDao.reqOrder(userId, dprtCode, dprtDetail, dstinCode, dstinDetail);
+  public void deliveryAddress(String userId, int departureCode, String departureDetail, int destinationCode, String destinationDetail) {
+    orderDao.deliveryAddress(userId, departureCode, departureDetail, destinationCode, destinationDetail);
   }
 }

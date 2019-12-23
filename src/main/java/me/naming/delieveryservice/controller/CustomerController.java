@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CustomerController {
 
   @Autowired private UserService userService;
-  @Autowired private OrderService orderService;
 
   /**
    * 고객 회원가입 메서드
@@ -125,27 +124,6 @@ public class CustomerController {
     return ResponseEntity.ok(userDTO);
   }
 
-  /**
-   * 배달주소지 등록
-   * @param id
-   * @param addressInfo
-   * @return
-   */
-  @PostMapping("/{id}/delivery/location")
-  public ResponseEntity reqOrder(
-      @PathVariable String id, @RequestBody AddressInfo addressInfo) {
-
-    orderService.reqOrder(
-        id,
-        addressInfo.getDepartureCode(),
-        addressInfo.getDepartureDetail(),
-        addressInfo.getDestinationCode(),
-        addressInfo.getDepartureDetail());
-
-    URI uri = ControllerLinkBuilder.linkTo(CustomerController.class).toUri();
-    return ResponseEntity.created(uri).build();
-  }
-
   // --------------- Body로 Request 받을 데이터 지정 ---------------
   @Getter
   private static class UserLoginRequest {
@@ -156,13 +134,5 @@ public class CustomerController {
   @Getter
   private static class UserChgPwd {
     @NonNull String newPassword;
-  }
-
-  @Getter
-  private static class AddressInfo {
-    @NonNull int departureCode;
-    @NonNull String departureDetail;
-    @NonNull int destinationCode;
-    @NonNull String destinationDetail;
   }
 }

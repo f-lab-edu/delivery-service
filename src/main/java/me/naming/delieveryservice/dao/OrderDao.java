@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OrderDao {
 
-  int reqOrder(String userId, int dprtCode, String dprtDetail, int dstinCode, String dstinDetail);
+  void deliveryAddress(String userId, int departureCode, String departureDetail, int destinationCode, String destinationDetail);
 }

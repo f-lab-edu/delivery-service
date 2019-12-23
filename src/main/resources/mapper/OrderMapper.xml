@@ -19,14 +19,14 @@
     <result property="destinationDetail" column="DESTINATION_ADDRESS_DETAIL"/>
   </resultMap>
 
-  <insert id="reqOrder">
+  <insert id="deliveryAddress" parameterType="AddressDTO">
     INSERT INTO Delievery_Service.ORDERS(
     USER_ID,             DEPARTURE_ADDRESS_CODE,    DEPARTURE_ADDRESS_DETAIL,
     DESTINATION_ADDRESS_CODE,    DESTINATION_ADDRESS_DETAIL)
 
     VALUES(
-    #{userId},   #{dprtCode},    #{dprtDetail},
-    #{dstinCode}, #{dstinDetail})
+    #{userId},   #{departureCode},    #{departureDetail},
+    #{destinationCode}, #{destinationDetail})
   </insert>
 
 </mapper>

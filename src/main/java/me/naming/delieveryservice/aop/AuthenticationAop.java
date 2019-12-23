@@ -18,7 +18,6 @@ public class AuthenticationAop {
   /**
    * 각 메서드마다 공통적으로 체크하는 로그인 상태를 확인하기 위한 AOP 기능 추가
    * Session에 USER_ID 정보가 존재하는지 체크하고, 존재할 시 파라미터와 동일한 값인지 확인한다.
-   * @param id
    * @param httpSession
    */
   @Before(value = "execution(* me.naming.delieveryservice.controller.CustomerController.*UserInfo(javax.servlet.http.HttpSession, ..)) && args(httpSession)")
