@@ -52,4 +52,10 @@
     WHERE USER_ID = #{userId}
   </select>
 
+  <select id="productInfoDetail" resultType="ProductInfoDTO">
+    SELECT CATEGORY, BRAND_NAME, PRODUCT_NAME, COMMENT
+    FROM PRODUCTS_INFO
+    WHERE ORDER_NUM = #{orderNum}
+  </select>
+
 </mapper>

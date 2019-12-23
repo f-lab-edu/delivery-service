@@ -1,15 +1,17 @@
 package me.naming.delieveryservice.controller;
 
 import java.net.URI;
-import lombok.Getter;
-import lombok.NonNull;
+import java.util.List;
 import me.naming.delieveryservice.aop.CheckSessionUserId;
 import me.naming.delieveryservice.aop.UserIdObjParam;
 import me.naming.delieveryservice.dto.AddressDTO;
+import me.naming.delieveryservice.dto.ProductInfoDTO;
 import me.naming.delieveryservice.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,7 +47,7 @@ public class OrderController {
    */
   @CheckSessionUserId
   @PostMapping("/product")
-  public ResponseEntity deliveryProduct(@RequestBody ProductInfo productInfo) {
+  public ResponseEntity deliveryProduct(@RequestBody ProductInfoDTO productInfo) {
 
     orderService.deliveryProduct(
         productInfo.getCategory(),
@@ -59,12 +61,11 @@ public class OrderController {
     return ResponseEntity.created(uri).build();
   }
 
-  @Getter
-  private static class ProductInfo {
-    @NonNull String category;
-    @NonNull String brandName;
-    @NonNull String productName;
-    String comment;
-    @NonNull int orderNum;
+  @CheckSessionUserId
+  @GetMapping("/product/{orderNum}")
+  public ResponseEntity productInfo(@PathVariable int orderNum){
+
+    List<ProductInfoDTO> productList = orderService.productInfoDetail(orderNum);
+    return ResponseEntity.ok(productList);
   }
 }

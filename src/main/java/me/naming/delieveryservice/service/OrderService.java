@@ -3,6 +3,7 @@ package me.naming.delieveryservice.service;
 import java.util.List;
 import me.naming.delieveryservice.dao.OrderDao;
 import me.naming.delieveryservice.dto.AddressDTO;
+import me.naming.delieveryservice.dto.ProductInfoDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,10 @@ public class OrderService {
 
   public List<UserOrderListDTO> userOrderList(String userId){
     return orderDao.userOrderList(userId);
+  }
+
+  public List<ProductInfoDTO> productInfoDetail(int orderNum) {
+    return orderDao.productInfoDetail(orderNum);
   }
 
 }
