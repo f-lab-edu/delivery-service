@@ -4,8 +4,8 @@ import java.net.URI;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
-import me.naming.delieveryservice.aop.OnlyUserIdInterface;
-import me.naming.delieveryservice.aop.UserInterface;
+import me.naming.delieveryservice.aop.UserIdObjParam;
+import me.naming.delieveryservice.aop.UserIdParam;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +88,7 @@ public class CustomerController {
    * @param userChgPwd
    * @return
    */
-  @UserInterface
+  @UserIdObjParam
   @PatchMapping(value = "/password")
   public ResponseEntity updateUserInfo(String userId, @RequestBody UserChgPwd userChgPwd) {
 
@@ -115,7 +115,7 @@ public class CustomerController {
    * @param userId
    * @return
    */
-  @OnlyUserIdInterface
+  @UserIdParam
   @GetMapping(value = "/myinfo")
   public ResponseEntity userInfo(String userId) {
 

@@ -4,7 +4,7 @@ import java.net.URI;
 import lombok.Getter;
 import lombok.NonNull;
 import me.naming.delieveryservice.aop.CheckSessionUserId;
-import me.naming.delieveryservice.aop.UserInterface;
+import me.naming.delieveryservice.aop.UserIdObjParam;
 import me.naming.delieveryservice.dto.AddressDTO;
 import me.naming.delieveryservice.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class OrderController {
    * @param addressDTO
    * @return
    */
-  @UserInterface
+  @UserIdObjParam
   @PostMapping("/address")
   public ResponseEntity deliveryAddress(String userId, @RequestBody AddressDTO addressDTO) {
 

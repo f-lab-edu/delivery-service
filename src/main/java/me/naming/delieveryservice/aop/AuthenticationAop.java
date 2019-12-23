@@ -29,7 +29,7 @@ public class AuthenticationAop {
    * @return
    * @throws Throwable
    */
-  @Around("@annotation(OnlyUserIdInterface)")
+  @Around("@annotation(UserIdParam)")
   public Object userLoginCheckParam1(ProceedingJoinPoint joinPoint) throws Throwable{
 
     String userId = getSessionId();
@@ -43,7 +43,7 @@ public class AuthenticationAop {
    * @return
    * @throws Throwable
    */
-  @Around("@annotation(UserInterface)")
+  @Around("@annotation(UserIdObjParam)")
   public Object userLoginCheckParam2(ProceedingJoinPoint joinPoint) throws Throwable{
 
     String userId = getSessionId();
