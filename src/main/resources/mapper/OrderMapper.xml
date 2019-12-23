@@ -19,7 +19,7 @@
     <result property="destinationDetail" column="DESTINATION_ADDRESS_DETAIL"/>
   </resultMap>
 
-  <insert id="deliveryAddress" parameterType="AddressDTO">
+  <insert id="deliveryAddress" useGeneratedKeys="true" keyProperty="orderNum" keyColumn="ORDER_NUM" parameterType="AddressDTO">
     INSERT INTO Delievery_Service.ORDERS(
     USER_ID,             DEPARTURE_ADDRESS_CODE,    DEPARTURE_ADDRESS_DETAIL,
     DESTINATION_ADDRESS_CODE,    DESTINATION_ADDRESS_DETAIL)
@@ -27,6 +27,13 @@
     VALUES(
     #{userId},   #{departureCode},    #{departureDetail},
     #{destinationCode}, #{destinationDetail})
+  </insert>
+
+  <insert id="deliveryProduct">
+    INSERT INTO Delievery_Service.PRODUCTS_INFO(
+    CATEGORY, BRAND_NAME, PRODUCT_NAME, COMMENT, ORDER_NUM)
+    VALUES(
+    #{category}, #{brandName}, #{productName}, #{comment}, #{orderNum})
   </insert>
 
 </mapper>

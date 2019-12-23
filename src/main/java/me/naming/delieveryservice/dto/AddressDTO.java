@@ -9,6 +9,8 @@ import org.apache.ibatis.type.Alias;
 @Setter
 @Alias("AddressDTO")
 public class AddressDTO {
+  long orderNum;
+  @NonNull String userId;
   @NonNull int departureCode;
   @NonNull String departureDetail;
   @NonNull int destinationCode;

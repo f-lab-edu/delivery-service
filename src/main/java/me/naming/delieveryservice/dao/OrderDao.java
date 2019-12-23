@@ -1,5 +1,6 @@
 package me.naming.delieveryservice.dao;
 
+import me.naming.delieveryservice.dto.AddressDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -7,5 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OrderDao {
 
-  void deliveryAddress(String userId, int departureCode, String departureDetail, int destinationCode, String destinationDetail);
+  void deliveryAddress(AddressDTO addressDTO);
+  void deliveryProduct(String category, String brandName, String productName, String comment, int orderNum);
 }
