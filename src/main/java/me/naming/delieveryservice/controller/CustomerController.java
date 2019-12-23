@@ -4,8 +4,9 @@ import java.net.URI;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import me.naming.delieveryservice.aop.OnlyUserIdInterface;
+import me.naming.delieveryservice.aop.UserInterface;
 import me.naming.delieveryservice.dto.UserDTO;
-import me.naming.delieveryservice.service.OrderService;
 import me.naming.delieveryservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
@@ -82,15 +83,15 @@ public class CustomerController {
   }
 
   /**
-   * 비밀번호를 변경하기 위한 메서드
+   * 비밀번호를 변경하기 위한 메소드
+   * @param userId
    * @param userChgPwd
-   * @param httpSession
    * @return
    */
+  @UserInterface
   @PatchMapping(value = "/password")
-  public ResponseEntity updateUserInfo(HttpSession httpSession, @RequestBody UserChgPwd userChgPwd) {
+  public ResponseEntity updateUserInfo(String userId, @RequestBody UserChgPwd userChgPwd) {
 
-    String userId = httpSession.getAttribute("USER_ID").toString();
     userService.updatePwd(userId, userChgPwd.getNewPassword());
     return ResponseEntity.ok().build();
   }
@@ -114,6 +115,7 @@ public class CustomerController {
    * @param userId
    * @return
    */
+  @OnlyUserIdInterface
   @GetMapping(value = "/myinfo")
   public ResponseEntity userInfo(String userId) {
 
