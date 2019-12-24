@@ -107,10 +107,10 @@ public class CustomerController {
    */
   @DeleteMapping(value = "/{id}/info")
   public ResponseEntity<ResponseResult> deleteUserInfo(
-      @PathVariable String id, HttpSession httpSession) {
+      @PathVariable String id, @RequestBody ChangeUserStatus changeUserStatus, HttpSession httpSession) {
 
     checkUserId(httpSession, id);
-    userService.deleteUserInfo(id);
+    userService.changeUserStatus(id, changeUserStatus.getStatus());
     httpSession.invalidate();
     return OK_SUCCESS;
   }
@@ -125,13 +125,8 @@ public class CustomerController {
 
     checkUserId(httpSession, id);
     UserDTO userDTO = userService.getUserInfo(id);
-    Link link =
-        ControllerLinkBuilder.linkTo(
-                ControllerLinkBuilder.methodOn(CustomerController.class)
-                    .deleteUserInfo(id, httpSession))
-            .withRel("DeleteUserInfo");
 
-    return new Resource<>(userDTO, link);
+    return new Resource<>(userDTO);
   }
 
 
@@ -204,5 +199,11 @@ public class CustomerController {
   @Getter
   private static class UserChgPwd {
     @NonNull String newPassword;
+  }
+
+  @Getter
+  private static class ChangeUserStatus {
+    @NonNull
+    String status;
   }
 }

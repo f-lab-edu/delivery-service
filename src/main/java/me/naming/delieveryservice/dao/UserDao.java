@@ -13,7 +13,7 @@ public interface UserDao {
     UserDTO userLogin(String id, String password);
     int updatePwd(String id, String newPassword);
 
-    int deleteUserInfo(String id);
+    int changeUserStatus(String id, String status);
 
     UserDTO getUserInfo(String id);
 
