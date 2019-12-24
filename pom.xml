@@ -89,10 +89,26 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
+        <!--StringUtils(문자열 작업 관련기능을 뫃아놓은 Library) 사용을 위해 추가-->
+        <!--메서드 참고(https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/StringUtils.html)-->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
+        </dependency>
+
+        <!--Swagger 설정 : JSON 형태로 확인 가능(http://localhost:8080/v2/api-docs) -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+
+        <!--Swagger 설정 : HTML 형태로 확인 가능(http://localhost:8080/swagger-ui.html)-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.9.2</version>
         </dependency>
 
     </dependencies>
