@@ -79,7 +79,7 @@ public class UserService {
      */
     public void changeUserStatus(String id, String status) {
 
-        if(!status.equals(Status.DEFAULT) && !status.equals(Status.DELETE))
+        if(!status.equals(Status.DEFAULT.toString()) && !status.equals(Status.DELETE.toString()))
             throw new IllegalStateException("status값이 부적절합니다.");
 
         int udtResult = userDao.changeUserStatus(id, status);
