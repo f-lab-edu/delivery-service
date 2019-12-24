@@ -14,5 +14,10 @@ public interface UserDao {
     int updatePwd(String id, String newPassword);
 
     int changeUserStatus(String id, String status);
+<<<<<<< HEAD
+=======
+
+    UserDTO getUserInfo(String id);
+>>>>>>> feature/login4
 
 }

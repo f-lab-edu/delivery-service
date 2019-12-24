@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -27,12 +27,11 @@ public class RedisConfig {
     }
 
     @Bean
-    public StringRedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
-        stringRedisTemplate.setConnectionFactory(redisConnectionFactory);
-        stringRedisTemplate.setKeySerializer(new StringRedisSerializer());      // 레디스 key 값에 대한 직렬화 설정
-        stringRedisTemplate.setValueSerializer(new StringRedisSerializer());    // 레디스 value 값에 대한 직렬화 설정
-        return stringRedisTemplate;
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());        // Key값 직렬화
+        redisTemplate.setValueSerializer(new StringRedisSerializer());      // Value값 직렬화
+        return redisTemplate;
     }
-
 }
