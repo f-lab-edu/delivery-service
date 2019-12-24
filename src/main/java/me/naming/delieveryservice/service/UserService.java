@@ -53,7 +53,7 @@ public class UserService {
     UserDTO userDTO = userDao.userLogin(id, encryptPwd);
 
     if(userDTO == null) {
-      throw new RuntimeException("User Info is not exists. Check the Id or Password");
+      throw new NullPointerException("User Info is not exists. Check the Id or Password");
     }
     return userDTO;
   }
