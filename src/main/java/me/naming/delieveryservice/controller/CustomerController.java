@@ -1,13 +1,14 @@
 package me.naming.delieveryservice.controller;
 
+import java.net.URI;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import javax.servlet.http.HttpSession;
@@ -32,10 +33,6 @@ public class CustomerController {
 
   @Autowired private UserService userService;
 
-  private static final ResponseEntity<ResponseResult> CREATE_SUCCESS = new ResponseEntity<>(ResponseResult.SUCCESS, HttpStatus.CREATED);
-  private static final ResponseEntity<ResponseResult> OK_SUCCESS = new ResponseEntity<>(ResponseResult.SUCCESS, HttpStatus.OK);
-  private static final ResponseEntity<ResponseResult> CONFLICT_DUPLICATE = new ResponseEntity<>(ResponseResult.DUPLICATE, HttpStatus.CONFLICT);
-
   /**
    * 고객 회원가입 메서드
    * - ResponseEntity란 HttpEntity를 상속받은 클래스로써, Http의 Header와 Body 관련 정보를 저장 할 수 있게 해준다.
@@ -44,9 +41,12 @@ public class CustomerController {
    * @return
    */
   @PostMapping(value = "/signup")
-  public ResponseEntity<ResponseResult> signUpUserInfo(@RequestBody UserDTO userDTO) {
+  public ResponseEntity signUpUserInfo(@RequestBody UserDTO userDTO) {
     userService.insertUserInfo(userDTO);
-    return CREATE_SUCCESS;
+
+    // http 헤더중 Location은 post 동작 완료 후 리다이렉션 URL을 지정해주는 정보이다. 즉, 어느 페이지로 이동할지를 알려주는 정보
+    URI uri = ControllerLinkBuilder.linkTo(CustomerController.class).toUri();
+    return ResponseEntity.created(uri).build();
   }
 
   /**
@@ -55,13 +55,13 @@ public class CustomerController {
    * @return
    */
   @GetMapping(value = "/{id}/exists")
-  public ResponseEntity<ResponseResult> checkIdDuplicate(@PathVariable String id) {
+  public ResponseEntity checkIdDuplicate(@PathVariable String id) {
 
     boolean idCheck = userService.checkIdDuplicate(id);
     if (idCheck)
-      return CONFLICT_DUPLICATE;
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
 
-    return OK_SUCCESS;
+    return ResponseEntity.ok().build();
   }
 
   /**
@@ -71,12 +71,12 @@ public class CustomerController {
    * @return
    */
   @PostMapping(value = "/login")
-  public ResponseEntity<ResponseResult> userLogin(
-      @RequestBody UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
+  public ResponseEntity userLogin(HttpSession httpSession, @RequestBody UserLoginRequest userLoginRequest) throws Exception {
 
     UserDTO userDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
     httpSession.setAttribute("USER_ID", userDTO.getUserId());
-    return OK_SUCCESS;
+
+    return ResponseEntity.ok().build();
   }
 
   /**
@@ -86,12 +86,10 @@ public class CustomerController {
    * @return
    */
   @PatchMapping(value = "/{id}/password")
-  public ResponseEntity<ResponseResult> updatePwd(
-      @RequestBody UserChgPwd userChgPwd, @PathVariable String id, HttpSession httpSession) {
+  public ResponseEntity updateUserInfo(String userId, @RequestBody UserChgPwd userChgPwd) {
 
-    checkUserId(httpSession, id);
-    userService.updatePwd(id, userChgPwd.getNewPassword());
-    return OK_SUCCESS;
+    userService.updatePwd(userId, userChgPwd.getNewPassword());
+    return ResponseEntity.ok().build();
   }
 
   /**
@@ -101,13 +99,13 @@ public class CustomerController {
    * @return
    */
   @DeleteMapping(value = "/{id}/info")
-  public ResponseEntity<ResponseResult> deleteUserInfo(
+  public ResponseEntity deleteUserInfo(
       @PathVariable String id, @RequestBody ChangeUserStatus changeUserStatus, HttpSession httpSession) {
 
     checkUserId(httpSession, id);
     userService.changeUserStatus(id, changeUserStatus.getStatus());
     httpSession.invalidate();
-    return OK_SUCCESS;
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   /**
@@ -137,20 +135,6 @@ public class CustomerController {
 
     if (!StringUtils.equals(httpSession.getAttribute("USER_ID").toString(), id))
       throw new IllegalArgumentException("Session('USER_ID') & ID is not same");
-  }
-
-  @RequiredArgsConstructor
-  private static class ResponseResult {
-    enum ResponseStatus{
-      SUCCESS, FAIL, DUPLICATE
-    }
-
-    @NonNull
-    private ResponseStatus result;
-
-    private static ResponseResult SUCCESS = new ResponseResult(ResponseStatus.SUCCESS);
-    private static ResponseResult FAIL = new ResponseResult(ResponseStatus.FAIL);
-    private static ResponseResult DUPLICATE = new ResponseResult(ResponseStatus.DUPLICATE);
   }
 
   /**
