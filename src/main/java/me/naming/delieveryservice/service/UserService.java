@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.naming.delieveryservice.dao.UserDao;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.utils.SHA256Util;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -81,7 +82,7 @@ public class UserService {
    */
   public void changeUserStatus(String id, String status) {
 
-    if (!status.equals(Status.DEFAULT.toString()) && !status.equals(Status.DELETE.toString()))
+    if (!StringUtils.equals(status, Status.DEFAULT.toString()) && !StringUtils.equals(status, Status.DELETE.toString()))
       throw new IllegalStateException("status값이 부적절합니다.");
 
     int udtResult = userDao.changeUserStatus(id, status);
