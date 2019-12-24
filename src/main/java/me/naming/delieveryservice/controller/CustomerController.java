@@ -1,9 +1,10 @@
 package me.naming.delieveryservice.controller;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
  *  - @AllArgsConstructor : 모든 필드 값을 파라미터로 받는 생성자 생성
  *  - @RequiredArgsConstructor : final or @NonNull인 필드 값만 파라미터로 받는 생성자 생성
  */
-@Slf4j
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {

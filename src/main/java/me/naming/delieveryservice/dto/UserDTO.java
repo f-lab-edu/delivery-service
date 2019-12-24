@@ -15,8 +15,6 @@ import java.util.Date;
 @Alias("UserDTO")
 public class UserDTO extends ResourceSupport {
 
-  private int pidNum;
-
   @NonNull private String userId;
   @NonNull private String password;
   @NonNull private String mobileNum;
