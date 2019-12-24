@@ -76,8 +76,8 @@ public class UserService {
   }
 
   /**
-   * 메소드는 PATCH를 사용한다. 왜냐하면 회원 탈퇴 하더라도 회원정보가 DB에서 Delete되는것이 아니고 status 칼럼의 값만 변경되는 것이기 때문이다. 따라서
-   * 사용자로부터 설정하려는 status 값을 받아오고, enum을 활용해 값이 올바르게 작성되었는지 체크한다. 사용자 상태값(DEFAULT -> DELETE or DELETE -> DEFAULT) 변경
+   * 메소드는 PATCH를 사용한다. 왜냐하면 회원 탈퇴 하더라도 회원정보가 DB에서 Delete되는것이 아니고 status 칼럼의 값만 변경되는 것이기 때문이다.
+   * 따라서 사용자로부터 설정하려는 status 값을 받아오고, enum을 활용해 값이 올바르게 작성되었는지 체크한다.
    * @param id
    */
   public void changeUserStatus(String id, String status) {
