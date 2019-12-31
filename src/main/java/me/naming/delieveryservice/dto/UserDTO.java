@@ -21,4 +21,9 @@ public class UserDTO extends ResourceSupport {
 
   private String name;
   private Date birthdate;
+
+  public enum Status{
+    DELETE,
+    DEFAULT;
+  }
 }
