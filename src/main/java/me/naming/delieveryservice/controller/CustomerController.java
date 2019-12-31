@@ -81,8 +81,8 @@ public class CustomerController {
 
   /**
    * 비밀번호를 변경하기 위한 메서드
+   * @param userId
    * @param userChgPwd
-   * @param httpSession
    * @return
    */
   @PatchMapping(value = "/{id}/password")
@@ -100,10 +100,10 @@ public class CustomerController {
    */
   @DeleteMapping(value = "/{id}/info")
   public ResponseEntity deleteUserInfo(
-      @PathVariable String id, @RequestBody ChangeUserStatus changeUserStatus, HttpSession httpSession) {
+      @PathVariable String id, HttpSession httpSession) {
 
     checkUserId(httpSession, id);
-    userService.changeUserStatus(id, changeUserStatus.getStatus());
+    userService.changeUserStatus(id);
     httpSession.invalidate();
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
@@ -178,11 +178,5 @@ public class CustomerController {
   @Getter
   private static class UserChgPwd {
     @NonNull String newPassword;
-  }
-
-  @Getter
-  private static class ChangeUserStatus {
-    @NonNull
-    String status;
   }
 }
