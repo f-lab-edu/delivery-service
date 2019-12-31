@@ -6,8 +6,8 @@
 </br>  
 
 ## 화면 스케치
-링크 주소 참고 : https://ovenapp.io/view/b7EEUu7k1rRwvxos0Qetgi541TR1AyIp/  
-
+링크 주소 참고 : https://ovenapp.io/view/b7EEUu7k1rRwvxos0Qetgi541TR1AyIp/
+</br>  
 
 ## 프로젝트 주요 기능
 - 고객 및 배달원 매칭
