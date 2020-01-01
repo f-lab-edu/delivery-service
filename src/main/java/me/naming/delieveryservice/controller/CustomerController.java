@@ -4,8 +4,7 @@ import java.net.URI;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
-import me.naming.delieveryservice.aop.OnlyUserIdInterface;
-import me.naming.delieveryservice.aop.UserInterface;
+import me.naming.delieveryservice.aop.CheckPathVariableUserId;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.OrderService;
 import me.naming.delieveryservice.service.UserService;
@@ -88,12 +87,11 @@ public class CustomerController {
 
   /**
    * 비밀번호를 변경하기 위한 메서드
+   * @param userId
    * @param userChgPwd
-   * @param httpSession
    * @return
    */
-  @UserInterface
-  @PatchMapping(value = "/password")
+  @PatchMapping(value = "/{userId}/password")
   public ResponseEntity updateUserInfo(String userId, @RequestBody UserChgPwd userChgPwd) {
 
     userService.updatePwd(userId, userChgPwd.getNewPassword());
@@ -116,12 +114,13 @@ public class CustomerController {
 
   /**
    * 회원정보 조회
-   * @param userId
    * @return
    */
-  @OnlyUserIdInterface
-  @GetMapping(value = "/myinfo")
-  public ResponseEntity userInfo(String userId) {
+  @CheckPathVariableUserId
+  @GetMapping(value = "/{userId}/myinfo")
+  public ResponseEntity userInfo(@PathVariable String userId) {
+
+    System.out.println("--------- userId : "+userId);
 
     UserDTO userDTO = userService.getUserInfo(userId);
     Link link = ControllerLinkBuilder.linkTo(CustomerController.class).slash("myinfo").withRel("DeleteUserInfo");
@@ -136,7 +135,7 @@ public class CustomerController {
    * @param addressInfo
    * @return
    */
-  @UserInterface
+  @CheckPathVariableUserId
   @PostMapping("/{id}/delivery/location")
   public ResponseEntity reqOrder(
       @PathVariable String id, @RequestBody AddressInfo addressInfo) {
