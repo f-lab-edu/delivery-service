@@ -1,14 +1,14 @@
 package me.naming.delieveryservice.controller;
 
-import java.net.URI;
 import java.util.List;
-import me.naming.delieveryservice.aop.CheckSessionUserId;
-import me.naming.delieveryservice.aop.UserIdObjParam;
-import me.naming.delieveryservice.dto.AddressDTO;
-import me.naming.delieveryservice.dto.ProductInfoDTO;
+import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import me.naming.delieveryservice.dto.OrderInfoDTO;
+import me.naming.delieveryservice.dto.UserOrderListDTO;
 import me.naming.delieveryservice.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,48 +24,37 @@ public class OrderController {
   @Autowired OrderService orderService;
 
   /**
-   * 주문 주소지 등록
-   * insert 후 등록된 pk값 전달하기 위해 Body에 addressDTO 리턴
+   * 주문정보 등록
+   *  - 배달정보(출발지, 도착지)와 물품정보를 등록한다.
    * @param userId
-   * @param addressDTO
+   * @param orderInfoDTO
    * @return
    */
-  @UserIdObjParam
-  @PostMapping("/address")
-  public ResponseEntity deliveryAddress(String userId, @RequestBody AddressDTO addressDTO) {
+  @PostMapping("/users/{userId}")
+  public ResponseEntity<OrderNum> orderInfo(@PathVariable String userId, @RequestBody OrderInfoDTO orderInfoDTO) {
 
-    addressDTO.setUserId(userId);
-    orderService.deliveryAddress(addressDTO);
+    orderInfoDTO.setUserId(userId);
+    int orderNum = orderService.orderInfo(orderInfoDTO);
 
-    return ResponseEntity.ok(addressDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(new OrderNum(orderNum));
   }
 
   /**
-   * 주문 상품 등록
-   * @param productInfo
+   * 사용자 주문정보 조회
+   * @param userId
    * @return
    */
-  @CheckSessionUserId
-  @PostMapping("/product")
-  public ResponseEntity deliveryProduct(@RequestBody ProductInfoDTO productInfo) {
+  @GetMapping("/users/{userId}")
+  public ResponseEntity userOrderList(@PathVariable String userId) {
+    List<UserOrderListDTO> orderList = orderService.userOrderList(userId);
 
-    orderService.deliveryProduct(
-        productInfo.getCategory(),
-        productInfo.getBrandName(),
-        productInfo.getProductName(),
-        productInfo.getComment(),
-        productInfo.getOrderNum());
-
-    URI uri = ControllerLinkBuilder.linkTo(OrderController.class).slash("/delivery/product").toUri();
-
-    return ResponseEntity.created(uri).build();
+    return ResponseEntity.ok(orderList);
   }
 
-  @CheckSessionUserId
-  @GetMapping("/product/{orderNum}")
-  public ResponseEntity productInfo(@PathVariable int orderNum){
-
-    List<ProductInfoDTO> productList = orderService.productInfoDetail(orderNum);
-    return ResponseEntity.ok(productList);
+  // ---------- 주문번호를 리턴하기 위한 클래스
+  @RequiredArgsConstructor
+  @Data
+  private class OrderNum{
+    @NonNull private int orderNum;
   }
 }

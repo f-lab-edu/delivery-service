@@ -18,7 +18,7 @@
     <result property="productName" column="PRODUCT_NAME"/>
   </resultMap>
 
-  <insert id="deliveryAddress" useGeneratedKeys="true" keyProperty="orderNum" keyColumn="ORDER_NUM" parameterType="AddressDTO">
+  <insert id="orderAddress" parameterType="OrderInfoDTO">
     INSERT INTO Delievery_Service.ORDERS(
     USER_ID,             DEPARTURE_ADDRESS_CODE,    DEPARTURE_ADDRESS_DETAIL,
     DESTINATION_ADDRESS_CODE,    DESTINATION_ADDRESS_DETAIL)
@@ -26,9 +26,13 @@
     VALUES(
     #{userId},   #{departureCode},    #{departureDetail},
     #{destinationCode}, #{destinationDetail})
+
+    <selectKey keyProperty="orderNum" resultType="int">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
   </insert>
 
-  <insert id="deliveryProduct">
+  <insert id="orderProduct" parameterType="OrderInfoDTO">
     INSERT INTO Delievery_Service.PRODUCTS_INFO(
     CATEGORY, BRAND_NAME, PRODUCT_NAME, COMMENT, ORDER_NUM)
     VALUES(

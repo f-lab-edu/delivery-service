@@ -130,19 +130,6 @@ public class CustomerController {
     return ResponseEntity.ok(userDTO);
   }
 
-  /**
-   * 사용자 주문정보 불러오기
-   * @param userId
-   * @return
-   */
-  @UserIdParam
-  @GetMapping(value = "/orders")
-  public ResponseEntity userOrderList(String userId) {
-    List<UserOrderListDTO> orderList = orderService.userOrderList(userId);
-
-    return ResponseEntity.ok(orderList);
-  }
-
   // --------------- Body로 Request 받을 데이터 지정 ---------------
   @Getter
   private static class UserLoginRequest {
