@@ -60,7 +60,7 @@ public class AuthenticationAop {
     Object data = httpSession.getAttribute("USER_ID");
 
     if(data == null)
-      throw new IllegalStateException("Session('USER_ID') is not exists");
+      throw new IllegalStateException("현재 사용자가 로그인된 상태가 아닙니다.");
 
     return  String.valueOf(data);
   }
