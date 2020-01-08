@@ -45,10 +45,10 @@ public class OrderController {
    * @return
    */
   @GetMapping("/users/{userId}")
-  public ResponseEntity userOrderList(@PathVariable String userId) {
+  public List<UserOrderListDTO> userOrderList(@PathVariable String userId) {
     List<UserOrderListDTO> orderList = orderService.userOrderList(userId);
 
-    return ResponseEntity.ok(orderList);
+    return orderList;
   }
 
   // ---------- 주문번호를 리턴하기 위한 클래스
