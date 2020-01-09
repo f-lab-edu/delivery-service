@@ -1,6 +1,8 @@
 package me.naming.delieveryservice.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +33,14 @@ public class OrderController {
    * @return
    */
   @PostMapping("/users/{userId}")
-  public ResponseEntity<OrderNum> orderInfo(@PathVariable String userId, @RequestBody OrderInfoDTO orderInfoDTO) {
+  public ResponseEntity<Map<String, Integer>> orderInfo(@PathVariable String userId, @RequestBody OrderInfoDTO orderInfoDTO) {
 
     orderInfoDTO.setUserId(userId);
     int orderNum = orderService.orderInfo(orderInfoDTO);
+    Map <String, Integer> map = new HashMap<>();
+    map.put("orderNum", orderNum);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(new OrderNum(orderNum));
+    return ResponseEntity.status(HttpStatus.CREATED).body(map);
   }
 
   /**
@@ -51,10 +55,4 @@ public class OrderController {
     return orderList;
   }
 
-  // ---------- 주문번호를 리턴하기 위한 클래스
-  @RequiredArgsConstructor
-  @Data
-  private class OrderNum{
-    @NonNull private int orderNum;
-  }
 }
