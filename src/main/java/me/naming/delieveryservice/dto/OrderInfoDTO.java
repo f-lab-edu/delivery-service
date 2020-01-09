@@ -15,6 +15,7 @@ public class OrderInfoDTO {
   @NonNull private String departureDetail;
   @NonNull private int destinationCode;
   @NonNull private String destinationDetail;
+  private double distance;
 
   // 상품정보
   @NonNull private String category;
@@ -25,4 +26,5 @@ public class OrderInfoDTO {
   public void setUserId(String userId) {
     this.userId = userId;
   }
+  public void setDistance(double distance) { this.distance = distance; }
 }
