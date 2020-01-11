@@ -1,9 +1,11 @@
 package me.naming.delieveryservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
@@ -24,18 +26,30 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
   @Autowired OrderService orderService;
+  @Autowired ObjectMapper objectMapper;
 
   /**
    * 주문정보 등록
    *  - 배달정보(출발지, 도착지)와 물품정보를 등록한다.
    * @param userId
-   * @param orderInfoDTO
+   * @param orderInfoRequest
    * @return
    */
   @PostMapping("/users/{userId}")
-  public ResponseEntity<Map<String, Integer>> orderInfo(@PathVariable String userId, @RequestBody OrderInfoDTO orderInfoDTO) {
+  public ResponseEntity<Map<String, Integer>> orderInfo(@PathVariable String userId, @RequestBody OrderInfoRequest orderInfoRequest) {
 
-    orderInfoDTO.setUserId(userId);
+    OrderInfoDTO orderInfoDTO = OrderInfoDTO.builder()
+        .userId(userId)
+        .departureCode(orderInfoRequest.getDepartureCode())
+        .departureDetail(orderInfoRequest.getDepartureDetail())
+        .destinationCode(orderInfoRequest.getDestinationCode())
+        .destinationDetail(orderInfoRequest.getDestinationDetail())
+        .category(orderInfoRequest.getCategory())
+        .brandName(orderInfoRequest.getBrandName())
+        .productName(orderInfoRequest.getProductName())
+        .comment(orderInfoRequest.getComment())
+        .build();
+
     int orderNum = orderService.orderInfo(orderInfoDTO);
     Map <String, Integer> map = new HashMap<>();
     map.put("orderNum", orderNum);
@@ -55,4 +69,19 @@ public class OrderController {
     return orderList;
   }
 
+  // --------------- Body로 Request 받을 데이터 지정 ---------------
+  @Getter
+  private static class OrderInfoRequest {
+    // 배달(출발지, 도착지)주소
+    @NonNull private int departureCode;
+    @NonNull private String departureDetail;
+    @NonNull private int destinationCode;
+    @NonNull private String destinationDetail;
+
+    // 상품정보
+    @NonNull private String category;
+    @NonNull private String brandName;
+    @NonNull private String productName;
+    private String comment;
+  }
 }
