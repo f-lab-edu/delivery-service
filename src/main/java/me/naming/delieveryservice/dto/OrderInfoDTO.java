@@ -18,6 +18,10 @@ import org.apache.ibatis.type.Alias;
  *    따라서 Controller에서 필수 값으로 받아와야 할 RequestBody 형태(ex. OrderInfoRequest)를 만들어주고
  *    해당 데이터와 + userId를 Builder 패턴을 통해 OrderInfoDTO에 저장하기로 했습니다.
  *    이럴 경우, 안정적인(immutable) 객체를 생성 및 전달 할 수 있습니다.
+ *
+ *  - 추가 참고사항
+ *    String은 immutable한 자료형이나 List는 아니다. Cloneable 사용 시 고려할것(참고. https://gyrfalcon.tistory.com/entry/Java-Tip-clone%EA%B3%BC-Cloneable)
+ *
  */
 @Builder
 @Getter
