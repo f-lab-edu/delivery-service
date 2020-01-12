@@ -36,7 +36,7 @@ public class OrderController {
    * @return
    */
   @PostMapping("/users/{userId}")
-  public ResponseEntity<Map<String, Integer>> orderInfo(@PathVariable String userId, @RequestBody OrderInfoRequest orderInfoRequest) {
+  public ResponseEntity<OrderNum> orderInfo(@PathVariable String userId, @RequestBody OrderInfoRequest orderInfoRequest) {
 
     OrderInfoDTO orderInfoDTO = OrderInfoDTO.builder()
         .userId(userId)
@@ -51,10 +51,8 @@ public class OrderController {
         .build();
 
     int orderNum = orderService.orderInfo(orderInfoDTO);
-    Map <String, Integer> map = new HashMap<>();
-    map.put("orderNum", orderNum);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(map);
+    return ResponseEntity.status(HttpStatus.CREATED).body(new OrderNum(orderNum));
   }
 
   /**
@@ -83,5 +81,12 @@ public class OrderController {
     @NonNull private String brandName;
     @NonNull private String productName;
     private String comment;
+  }
+
+  // ---------- 주문번호를 리턴하기 위한 클래스
+  @RequiredArgsConstructor
+  @Data
+  private class OrderNum{
+    @NonNull private int orderNum;
   }
 }
