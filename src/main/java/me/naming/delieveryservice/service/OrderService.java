@@ -1,6 +1,5 @@
 package me.naming.delieveryservice.service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
@@ -10,7 +9,8 @@ import me.naming.delieveryservice.dao.OrderDao;
 import me.naming.delieveryservice.dto.CoordinatesDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
-import me.naming.delieveryservice.utils.CommonUtil;
+import me.naming.delieveryservice.utils.AddressUtil;
+import me.naming.delieveryservice.utils.DistanceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,14 +41,14 @@ public class OrderService {
     HashMap<String,Object> departureInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDepartureCode());
     HashMap<String,Object> destinationInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDestinationCode());
 
-    String departureAddress   = getRoadAddress(departureInfoFromDB);
-    String destinationAddress = getRoadAddress(destinationInfoFromDB);
+    String departureAddress = AddressUtil.getRoadAddress(departureInfoFromDB);
+    String destinationAddress = AddressUtil.getRoadAddress(destinationInfoFromDB);
 
     CoordinatesDTO departureCoordinates = kakaoAPI.getCoordinatesByAddress(departureAddress);
     CoordinatesDTO destinationCoordinates = kakaoAPI.getCoordinatesByAddress(destinationAddress);
 
     double kmDistance =
-        CommonUtil.kmDistanceByCoordinates(
+        DistanceUtil.kmDistanceByCoordinates(
             departureCoordinates.getLatitude(),
             departureCoordinates.getLongitude(),
             destinationCoordinates.getLatitude(),
@@ -59,23 +59,6 @@ public class OrderService {
     orderDao.orderProduct(orderInfoDTO);
 
     return orderInfoDTO.getOrderNum();
-  }
-
-  /**
-   * 도로명 주소 생성
-   *  - HashMap Value 값을 연결하여 String 형태로 도로명 주소 생성
-   * @param hashMap
-   * @return
-   */
-  private String getRoadAddress(HashMap<String, Object> hashMap) {
-    ArrayList arrayList = new ArrayList();
-    StringBuilder stringBuilder = new StringBuilder();
-
-    arrayList.addAll(hashMap.values());
-    for(int i=0; i<arrayList.size(); i++) {
-      stringBuilder.append(arrayList.get(i).toString());
-    }
-    return stringBuilder.toString();
   }
 
 }

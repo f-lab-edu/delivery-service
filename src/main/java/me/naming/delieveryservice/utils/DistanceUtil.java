@@ -1,6 +1,6 @@
 package me.naming.delieveryservice.utils;
 
-public class CommonUtil {
+public class DistanceUtil {
 
   /**
    * 좌표 값을 활용해 직선거리를 구하기 위한 메소드.

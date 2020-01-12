@@ -22,6 +22,10 @@ public class KakaoAPI {
   @Value("${kakao.map.rest-api.key}") String kakaoRestApiKey;
   @Value("${kakao.map.url}") String kakaoMapUrl;
 
+  // RestTemplate를 전역변수로 사용한 이유는 thread-safe하기 때문이다.
+  // 참고 : https://www.notion.so/Delivery-Service-663d02f1c1264c23ba8c3d2ecf784793#91b74503c8f846bcaacd2a460ddb6e81
+  RestTemplate restTemplate = new RestTemplate();
+
   /**
    * '도로명 주소'를 좌표 값으로 변환
    *  - 카카오 API를 활용해 좌표 값 구하기
@@ -30,9 +34,7 @@ public class KakaoAPI {
    * @return
    */
   public CoordinatesDTO getCoordinatesByAddress(String address) {
-    RestTemplate restTemplate = new RestTemplate();
     HttpHeaders httpHeaders = new HttpHeaders();
-    CoordinatesDTO coordinatesDTO = new CoordinatesDTO();
 
     httpHeaders.add("Authorization", kakaoRestApiKey);
     UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(kakaoMapUrl)
@@ -40,16 +42,19 @@ public class KakaoAPI {
         .build(false);
 
     ResponseEntity<String> responseEntity = restTemplate.exchange(uriComponents.toUriString(), HttpMethod.GET, new HttpEntity<String>(httpHeaders), String.class);
+
+    if(responseEntity.getStatusCodeValue() != 200) {
+      log.error(responseEntity.getBody());
+      throw new RuntimeException("카카오맵 rest-api 에러");
+    }
+
     JsonObject jsonObject = new Gson().fromJson(responseEntity.getBody(), JsonObject.class);
     JsonArray getDocuments = jsonObject.get("documents").getAsJsonArray();
 
     double longitude = getDocuments.get(0).getAsJsonObject().get("x").getAsDouble();
     double latitude = getDocuments.get(0).getAsJsonObject().get("y").getAsDouble();
 
-    coordinatesDTO.setLatitude(latitude);
-    coordinatesDTO.setLongitude(longitude);
-
-    return coordinatesDTO;
+    return new CoordinatesDTO(latitude, longitude);
   }
 
 }
