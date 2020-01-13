@@ -7,5 +7,8 @@ import org.springframework.stereotype.Repository;
 @Mapper
 @Repository
 public interface PaymentDao {
-  void paymentInfo(PaymentDTO paymentDTO);
+  int paymentInfo(PaymentDTO paymentDTO);
+
+  void testDataDelete();
+  int getCount();
 }
