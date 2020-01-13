@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="me.naming.delieveryservice.dao.FeeDao">
+
+  <resultMap id="feeDto" type="me.naming.delieveryservice.dto.FeeDTO">
+    <result property="deliveryType" column="DELIVERY_TYPE"/>
+    <result property="basicDistance" column="BASIC_DISTANCE"/>
+    <result property="basicFee" column="BASIC_FEE"/>
+    <result property="extraDistance" column="EXTRA_DISTANCE"/>
+    <result property="extraFee" column="EXTRA_FEE"/>
+  </resultMap>
+
+  <select id="getFeeInfo" resultType="feeDto">
+    SELECT DELIVERY_TYPE, BASIC_DISTANCE, BASIC_FEE, EXTRA_DISTANCE, EXTRA_FEE
+    FROM FEE
+  </select>
+
+</mapper>

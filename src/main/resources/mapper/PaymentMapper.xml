@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="me.naming.delieveryservice.dao.PaymentDao">
+
+  <insert id="paymentInfo" parameterType="PaymentDTO">
+    INSERT INTO PAYMENT(PAYMENT_TYPE, AMOUNT, ORDER_NUM, DELIVERY_TYPE)
+    VALUES (#{paymentType}, #{amount}, #{orderNum}, #{deliveryType})
+  </insert>
+
+</mapper>
