@@ -22,6 +22,12 @@ public class RestTemplateConfig {
 
   private class RestTemplateErrorHandler implements ResponseErrorHandler {
 
+    final String apiName;
+
+    public RestTemplateErrorHandler(String apiName) {
+      this.apiName = apiName;
+    }
+
     @Override
     public boolean hasError(ClientHttpResponse httpResponse) throws IOException {
       return (httpResponse.getStatusCode().series() == CLIENT_ERROR
@@ -33,27 +39,27 @@ public class RestTemplateConfig {
 
       // handle SERVER_ERROR
       if (httpResponse.getStatusCode().series() == SERVER_ERROR) {
-        throw new RuntimeException("API측 서버 에러 발생");
+        throw new RuntimeException(apiName+" : API측 서버 에러 발생");
 
-      // handle CLIENT_ERROR
+        // handle CLIENT_ERROR
       } else if (httpResponse.getStatusCode().series() == CLIENT_ERROR) {
 
         if (httpResponse.getStatusCode() == HttpStatus.NOT_FOUND)
-          throw new RuntimeException("API URL 주소가 존재하지 않습니다");
+          throw new RuntimeException(apiName+" : API URL 주소가 존재하지 않습니다");
 
         if (httpResponse.getStatusCode() == HttpStatus.UNAUTHORIZED)
-          throw new RuntimeException("클라이언트측에서 헤더에 AppKey를 추가하지 않았습니다");
+          throw new RuntimeException(apiName+" : 클라이언트측에서 헤더에 AppKey를 추가하지 않았습니다");
 
         if (httpResponse.getStatusCode() == HttpStatus.BAD_REQUEST)
-          throw new RuntimeException("클라이언트측에서 쿼리 파라미터가 존재하지 않습니다");
+          throw new RuntimeException(apiName+" : 클라이언트측에서 쿼리 파라미터가 존재하지 않습니다");
       }
     }
   }
 
   @Bean
-  public RestTemplate restTemplate() {
+  public RestTemplate kakaoRestTemplate() {
     RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
-    RestTemplate restTemplate = restTemplateBuilder.errorHandler(new RestTemplateErrorHandler()).build();
+    RestTemplate restTemplate = restTemplateBuilder.errorHandler(new RestTemplateErrorHandler("카카오API")).build();
 
     return restTemplate;
   }
