@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.api.KakaoAPI;
 import me.naming.delieveryservice.dao.AddressDao;
 import me.naming.delieveryservice.dao.OrderDao;
+import me.naming.delieveryservice.dto.AddressDTO;
 import me.naming.delieveryservice.dto.CoordinatesDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
@@ -38,8 +39,8 @@ public class OrderService {
    */
   public int orderInfo(OrderInfoDTO orderInfoDTO){
 
-    HashMap<String,Object> departureInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDepartureCode());
-    HashMap<String,Object> destinationInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDestinationCode());
+    AddressDTO departureInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDepartureCode());
+    AddressDTO destinationInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDestinationCode());
 
     String departureAddress = AddressUtil.getRoadAddress(departureInfoFromDB);
     String destinationAddress = AddressUtil.getRoadAddress(destinationInfoFromDB);
@@ -60,5 +61,4 @@ public class OrderService {
 
     return orderInfoDTO.getOrderNum();
   }
-
 }

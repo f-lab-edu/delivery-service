@@ -13,8 +13,8 @@
     <result property="buildingName" column="BUILDING_NAME"/>
   </resultMap>
 
-  <select id="getAddressInfoByAddressCode" resultType="HashMap">
-    SELECT CITY_NAME, COUNTRY_NAME, ROAD_NAME, BUILDING_NUMBER, BUILDING_NUMBER_SIDE
+  <select id="getAddressInfoByAddressCode" resultMap="addressDTO">
+    SELECT CITY_NAME, COUNTRY_NAME, ROAD_NAME, BUILDING_NUMBER
     FROM ADDRESS
     WHERE PID_ADDRESS_CODE = #{addressCode}
   </select>
