@@ -4,10 +4,13 @@ import java.net.URI;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
-import me.naming.delieveryservice.aop.CheckPathVariableUserId;
+import me.naming.delieveryservice.aop.LoginCheck;
+import me.naming.delieveryservice.aop.UserInfo;
 import me.naming.delieveryservice.dto.UserDTO;
+import me.naming.delieveryservice.dto.UserInfoDTO;
 import me.naming.delieveryservice.service.OrderService;
 import me.naming.delieveryservice.service.UserService;
+import me.naming.delieveryservice.utils.SessionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
@@ -79,21 +82,28 @@ public class CustomerController {
   @PostMapping(value = "/login")
   public ResponseEntity userLogin(HttpSession httpSession, @RequestBody UserLoginRequest userLoginRequest) throws Exception {
 
-    UserDTO userDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
-    httpSession.setAttribute("USER_ID", userDTO.getUserId());
+    UserInfoDTO userInfoDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
+    httpSession.setAttribute("UserInfo", userInfoDTO);
 
     return ResponseEntity.ok().build();
   }
 
+//  @PatchMapping(value = "/password")
+//  public ResponseEntity updateUserInfo(@UserInfo UserInfoDTO userInfoDTO, @RequestBody UserChgPwd userChgPwd) {
+//    userService.updatePwd(userInfoDTO.getUserId(), userChgPwd.getNewPassword());
+//    return ResponseEntity.ok().build();
+//  }
+
   /**
    * 비밀번호를 변경하기 위한 메서드
-   * @param userId
+   * @param httpSession
    * @param userChgPwd
    * @return
    */
-  @PatchMapping(value = "/{userId}/password")
-  public ResponseEntity updateUserInfo(String userId, @RequestBody UserChgPwd userChgPwd) {
-
+  @LoginCheck
+  @PatchMapping(value = "/password")
+  public ResponseEntity updateUserInfo(HttpSession httpSession, @RequestBody UserChgPwd userChgPwd) {
+    String userId = SessionUtil.getUserId(httpSession);
     userService.updatePwd(userId, userChgPwd.getNewPassword());
     return ResponseEntity.ok().build();
   }
@@ -116,13 +126,10 @@ public class CustomerController {
    * 회원정보 조회
    * @return
    */
-  @CheckPathVariableUserId
-  @GetMapping(value = "/{userId}/myinfo")
-  public ResponseEntity userInfo(@PathVariable String userId) {
+  @GetMapping(value = "/myinfo")
+  public ResponseEntity userInfo(@UserInfo UserInfoDTO userId) {
 
-    System.out.println("--------- userId : "+userId);
-
-    UserDTO userDTO = userService.getUserInfo(userId);
+    UserDTO userDTO = userService.getUserInfo(userId.getUserId());
     Link link = ControllerLinkBuilder.linkTo(CustomerController.class).slash("myinfo").withRel("DeleteUserInfo");
     userDTO.add(link);
 
@@ -135,7 +142,6 @@ public class CustomerController {
    * @param addressInfo
    * @return
    */
-  @CheckPathVariableUserId
   @PostMapping("/{id}/delivery/location")
   public ResponseEntity reqOrder(
       @PathVariable String id, @RequestBody AddressInfo addressInfo) {

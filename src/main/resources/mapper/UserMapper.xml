@@ -3,13 +3,19 @@
 
 <mapper namespace="me.naming.delieveryservice.dao.UserDao">
 
-    <resultMap id="userInfo" type="me.naming.delieveryservice.dto.UserDTO">
+    <resultMap id="userDTO" type="me.naming.delieveryservice.dto.UserDTO">
         <result property="userNum"       column="USER_NUM" />
         <result property="userId"       column="ID" />
         <result property="password"     column="PASSWORD" />
         <result property="mobileNum"    column="MOBILE_NUM" />
         <result property="name"         column="NAME" />
         <result property="birthday"    column="BIRTHDAY" />
+    </resultMap>
+
+    <resultMap id="userInfoDTO" type="me.naming.delieveryservice.dto.UserInfoDTO">
+        <result property="userNum" column="USER_NUM"/>
+        <result property="userId" column="ID"/>
+        <result property="mobileNum" column="MOBILE_NUM"/>
     </resultMap>
 
     <insert id="insertUserInfo" parameterType="me.naming.delieveryservice.dto.UserDTO">
@@ -23,15 +29,15 @@
         WHERE id = #{id}
     </select>
 
-    <select id="userLogin" resultMap="userInfo">
-        SELECT ID, PASSWORD, MOBILE_NUM
+    <select id="userLogin" resultMap="userInfoDTO">
+        SELECT USER_NUM, ID, MOBILE_NUM
         FROM USER_BASE
         WHERE id = #{id}
         AND password = #{password}
     </select>
 
-    <select id="getUserInfo" resultMap="userInfo">
-        SELECT STATUS, ID, PASSWORD, MOBILE_NUM, NAME, BIRTHDAY
+    <select id="getUserInfo" resultMap="userDTO">
+        SELECT ID, MOBILE_NUM, NAME, BIRTHDAY
         FROM USER_BASE
         WHERE ID = #{id}
     </select>
