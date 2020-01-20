@@ -1,11 +1,8 @@
 package me.naming.delieveryservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
@@ -32,25 +29,14 @@ public class OrderController {
    * 주문정보 등록
    *  - 배달정보(출발지, 도착지)와 물품정보를 등록한다.
    * @param userId
-   * @param orderInfoRequest
+   * @param orderInfoDTO
    * @return
    */
   @PostMapping("/users/{userId}")
-  public ResponseEntity<OrderNum> orderInfo(@PathVariable String userId, @RequestBody OrderInfoRequest orderInfoRequest) {
+  public ResponseEntity<OrderNum> orderInfo(@PathVariable String userId, @RequestBody OrderInfoDTO orderInfoDTO) {
 
-    OrderInfoDTO orderInfoDTO = OrderInfoDTO.builder()
-        .userId(userId)
-        .departureCode(orderInfoRequest.getDepartureCode())
-        .departureDetail(orderInfoRequest.getDepartureDetail())
-        .destinationCode(orderInfoRequest.getDestinationCode())
-        .destinationDetail(orderInfoRequest.getDestinationDetail())
-        .category(orderInfoRequest.getCategory())
-        .brandName(orderInfoRequest.getBrandName())
-        .productName(orderInfoRequest.getProductName())
-        .comment(orderInfoRequest.getComment())
-        .build();
-
-    int orderNum = orderService.orderInfo(orderInfoDTO);
+    OrderInfoDTO copiedDto = orderInfoDTO.copy(userId);
+    int orderNum = orderService.orderInfo(copiedDto);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(new OrderNum(orderNum));
   }
@@ -65,22 +51,6 @@ public class OrderController {
     List<UserOrderListDTO> orderList = orderService.userOrderList(userId);
 
     return orderList;
-  }
-
-  // --------------- Body로 Request 받을 데이터 지정 ---------------
-  @Getter
-  private static class OrderInfoRequest {
-    // 배달(출발지, 도착지)주소
-    @NonNull private int departureCode;
-    @NonNull private String departureDetail;
-    @NonNull private int destinationCode;
-    @NonNull private String destinationDetail;
-
-    // 상품정보
-    @NonNull private String category;
-    @NonNull private String brandName;
-    @NonNull private String productName;
-    private String comment;
   }
 
   // ---------- 주문번호를 리턴하기 위한 클래스
