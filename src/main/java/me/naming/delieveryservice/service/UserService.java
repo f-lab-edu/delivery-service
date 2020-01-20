@@ -77,17 +77,11 @@ public class UserService {
 
   /**
    * 메소드는 Patch가 아닌 Delete를 사용해도 무관하다.
-   * 아래 메소드의 매개변수는 id 값만 받아오며, User의 Status 값을 변경하는 것이기 때문에
-   *
-   * enum을 사용하는 이유
-   *    - 코드가 단순해지고 가독성이 좋아진다.
-   *    - 인스턴스 생성과 상속을 방지한다.
-   *    - 구현의 의도가 분명하게 나타날 수 있다.
    * @param id
    */
-  public void changeUserStatus(String id) {
+  public void changeUserStatus(String id, UserDTO.Status status) {
 
-    int udtResult = userDao.changeUserStatus(id, UserDTO.Status.DELETE);
+    int udtResult = userDao.changeUserStatus(id, status);
     if (udtResult == 0) throw new RuntimeException("User ID is not exists");
   }
 }

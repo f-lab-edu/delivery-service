@@ -3,6 +3,7 @@ package me.naming.delieveryservice.controller;
 import java.net.URI;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +13,6 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import javax.servlet.http.HttpSession;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  *  - @AllArgsConstructor : 모든 필드 값을 파라미터로 받는 생성자 생성
  *  - @RequiredArgsConstructor : final or @NonNull인 필드 값만 파라미터로 받는 생성자 생성
  */
+@Log4j2
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
@@ -93,17 +94,21 @@ public class CustomerController {
   }
 
   /**
-   * 회원탈퇴
+   * 회원상태 변경(삭제 or 재사용)
+   *  - 회원상태를 삭제한다고해서 DB에서 실제로 사용자 정보가 삭제되는 것은 아니다.
    * @param id
+   * @param userStatus
    * @param httpSession
    * @return
    */
-  @DeleteMapping(value = "/{id}/info")
-  public ResponseEntity deleteUserInfo(
-      @PathVariable String id, HttpSession httpSession) {
+  @PatchMapping(value = "/{id}/info")
+  public ResponseEntity deleteUserInfo(@PathVariable String id, @RequestBody UserStatus userStatus, HttpSession httpSession) {
 
     checkUserId(httpSession, id);
-    userService.changeUserStatus(id);
+
+    UserDTO.Status status = UserDTO.Status.check(userStatus.getUserStatus());
+    userService.changeUserStatus(id, status);
+
     httpSession.invalidate();
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
@@ -178,5 +183,10 @@ public class CustomerController {
   @Getter
   private static class UserChgPwd {
     @NonNull String newPassword;
+  }
+
+  @Getter
+  private static class UserStatus {
+    @NonNull String userStatus;
   }
 }
