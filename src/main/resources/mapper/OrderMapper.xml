@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="me.naming.delieveryservice.dao.OrderDao">
+
+  <resultMap id="orderInfo" type="me.naming.delieveryservice.dto.OrderDTO">
+    <result property="orderNum" column="ORDER_NUM"/>
+    <result property="reqDate" column="DATE_CREATION"/>
+    <result property="orderStatus" column="ORDER_STATUS"/>
+    <result property="arrTime" column="ARRIVAL_TIME"/>
+    <result property="exArrTime" column="EX_ARRIVAL_TIME"/>
+
+    <result property="userId" column="USER_ID"/>
+    <result property="deliveryId" column="DELIVERY_ID"/>
+    <result property="departureCode" column="DEPARTURE_ADDRESS_CODE"/>
+    <result property="departureDetail" column="DEPARTURE_ADDRESS_DETAIL"/>
+    <result property="destinationCode" column="DESTINATION_ADDRESS_CODE"/>
+    <result property="destinationDetail" column="DESTINATION_ADDRESS_DETAIL"/>
+  </resultMap>
+
+  <insert id="reqOrder">
+    INSERT INTO Delievery_Service.ORDERS(
+    USER_ID,             DEPARTURE_ADDRESS_CODE,    DEPARTURE_ADDRESS_DETAIL,
+    DESTINATION_ADDRESS_CODE,    DESTINATION_ADDRESS_DETAIL)
+
+    VALUES(
+    #{userId},   #{dprtCode},    #{dprtDetail},
+    #{dstinCode}, #{dstinDetail})
+  </insert>
+
+</mapper>

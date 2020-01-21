@@ -1,16 +1,24 @@
 package me.naming.delieveryservice.controller;
 
+import java.net.URI;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
+import me.naming.delieveryservice.aop.LoginCheck;
+import me.naming.delieveryservice.aop.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.naming.delieveryservice.dto.UserDTO;
+import me.naming.delieveryservice.dto.UserInfoDTO;
+import me.naming.delieveryservice.service.OrderService;
 import me.naming.delieveryservice.service.UserService;
+import me.naming.delieveryservice.utils.SessionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +31,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * Lombok을 활용한 생성자 자동생성
@@ -32,13 +42,11 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/customers")
+@Log4j2
 public class CustomerController {
 
   @Autowired private UserService userService;
-
-  private static final ResponseEntity<ResponseResult> CREATE_SUCCESS = new ResponseEntity<>(ResponseResult.SUCCESS, HttpStatus.CREATED);
-  private static final ResponseEntity<ResponseResult> OK_SUCCESS = new ResponseEntity<>(ResponseResult.SUCCESS, HttpStatus.OK);
-  private static final ResponseEntity<ResponseResult> CONFLICT_DUPLICATE = new ResponseEntity<>(ResponseResult.DUPLICATE, HttpStatus.CONFLICT);
+  @Autowired private OrderService orderService;
 
   /**
    * 고객 회원가입 메서드
@@ -48,9 +56,12 @@ public class CustomerController {
    * @return
    */
   @PostMapping(value = "/signup")
-  public ResponseEntity<ResponseResult> signUpUserInfo(@RequestBody UserDTO userDTO) {
+  public ResponseEntity signUpUserInfo(@RequestBody UserDTO userDTO) {
     userService.insertUserInfo(userDTO);
-    return CREATE_SUCCESS;
+
+    // http 헤더중 Location은 post 동작 완료 후 리다이렉션 URL을 지정해주는 정보이다. 즉, 어느 페이지로 이동할지를 알려주는 정보
+    URI uri = ControllerLinkBuilder.linkTo(CustomerController.class).toUri();
+    return ResponseEntity.created(uri).build();
   }
 
   /**
@@ -59,13 +70,13 @@ public class CustomerController {
    * @return
    */
   @GetMapping(value = "/{id}/exists")
-  public ResponseEntity<ResponseResult> checkIdDuplicate(@PathVariable String id) {
+  public ResponseEntity checkIdDuplicate(@PathVariable String id) {
 
     boolean idCheck = userService.checkIdDuplicate(id);
     if (idCheck)
-      return CONFLICT_DUPLICATE;
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
 
-    return OK_SUCCESS;
+    return ResponseEntity.ok().build();
   }
 
   /**
@@ -75,92 +86,80 @@ public class CustomerController {
    * @return
    */
   @PostMapping(value = "/login")
-  public ResponseEntity<ResponseResult> userLogin(
-      @RequestBody UserLoginRequest userLoginRequest, HttpSession httpSession) throws Exception {
+  public ResponseEntity userLogin(HttpSession httpSession, @RequestBody UserLoginRequest userLoginRequest) throws Exception {
+    UserInfoDTO userInfoDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
+    httpSession.setAttribute("UserInfo", userInfoDTO);
 
-    UserDTO userDTO =
-        userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
-    httpSession.setAttribute("USER_ID", userDTO.getUserId());
-    return OK_SUCCESS;
+    return ResponseEntity.ok().build();
   }
+
+//  @PatchMapping(value = "/password")
+//  public ResponseEntity updateUserInfo(@UserInfo UserInfoDTO userInfoDTO, @RequestBody UserChgPwd userChgPwd) {
+//    userService.updatePwd(userInfoDTO.getUserId(), userChgPwd.getNewPassword());
+//    return ResponseEntity.ok().build();
+//  }
 
   /**
    * 비밀번호를 변경하기 위한 메서드
-   * @param userChgPwd
    * @param httpSession
+   * @param userChgPwd
    * @return
    */
-  @PatchMapping(value = "/{id}/password")
-  public ResponseEntity<ResponseResult> updatePwd(
-      @RequestBody UserChgPwd userChgPwd, @PathVariable String id, HttpSession httpSession) {
-
-    checkUserId(httpSession, id);
-    userService.updatePwd(id, userChgPwd.getNewPassword());
-    return OK_SUCCESS;
+  @LoginCheck
+  @PatchMapping(value = "/password")
+  public ResponseEntity updateUserInfo(HttpSession httpSession, @RequestBody UserChgPwd userChgPwd) {
+    String userId = SessionUtil.getUserId(httpSession);
+    userService.updatePwd(userId, userChgPwd.getNewPassword());
+    return ResponseEntity.ok().build();
   }
 
   /**
    * 회원탈퇴
-   * @param id
-   * @param httpSession
+   * @param userId
    * @return
    */
-  @DeleteMapping(value = "/{id}/info")
-  public ResponseEntity<ResponseResult> deleteUserInfo(
-      @PathVariable String id, HttpSession httpSession) {
+  @DeleteMapping(value = "/myinfo")
+  public ResponseEntity deleteUserInfo(String userId) {
 
-    checkUserId(httpSession, id);
-    userService.deleteUserInfo(id);
+    userService.deleteUserInfo(userId);
+    HttpSession httpSession = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest().getSession();
     httpSession.invalidate();
-    return OK_SUCCESS;
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   /**
    * 회원정보 조회
-   * @param httpSession
    * @return
    */
-  @GetMapping(value = "/{id}/info")
-  public Resource<UserDTO> getUserInfo(@PathVariable String id, HttpSession httpSession) {
+  @GetMapping(value = "/myinfo")
+  public ResponseEntity userInfo(@UserInfo UserInfoDTO userId) {
 
-    checkUserId(httpSession, id);
-    UserDTO userDTO = userService.getUserInfo(id);
-    Link link =
-        ControllerLinkBuilder.linkTo(
-                ControllerLinkBuilder.methodOn(CustomerController.class)
-                    .deleteUserInfo(id, httpSession))
-            .withRel("DeleteUserInfo");
+    UserDTO userDTO = userService.getUserInfo(userId.getUserId());
+    Link link = ControllerLinkBuilder.linkTo(CustomerController.class).slash("myinfo").withRel("DeleteUserInfo");
+    userDTO.add(link);
 
-    return new Resource<>(userDTO, link);
+    return ResponseEntity.ok(userDTO);
   }
-
 
   /**
-   * 사용자 ID 체크
-   * @param httpSession
+   * 배달주소지 등록
    * @param id
+   * @param addressInfo
+   * @return
    */
-  private void checkUserId(HttpSession httpSession, String id) throws NullPointerException{
+  @PostMapping("/{id}/delivery/location")
+  public ResponseEntity reqOrder(
+      @PathVariable String id, @RequestBody AddressInfo addressInfo) {
 
-    if(httpSession.getAttribute("USER_ID") ==  null)
-      throw new NullPointerException("Session('USER_ID') is not exists");
+    orderService.reqOrder(
+        id,
+        addressInfo.getDepartureCode(),
+        addressInfo.getDepartureDetail(),
+        addressInfo.getDestinationCode(),
+        addressInfo.getDepartureDetail());
 
-    if (!StringUtils.equals(httpSession.getAttribute("USER_ID").toString(), id))
-      throw new IllegalArgumentException("Session('USER_ID') & ID is not same");
-  }
-
-  @RequiredArgsConstructor
-  private static class ResponseResult {
-    enum ResponseStatus{
-      SUCCESS, FAIL, DUPLICATE
-    }
-
-    @NonNull
-    private ResponseStatus result;
-
-    private static ResponseResult SUCCESS = new ResponseResult(ResponseStatus.SUCCESS);
-    private static ResponseResult FAIL = new ResponseResult(ResponseStatus.FAIL);
-    private static ResponseResult DUPLICATE = new ResponseResult(ResponseStatus.DUPLICATE);
+    URI uri = ControllerLinkBuilder.linkTo(CustomerController.class).toUri();
+    return ResponseEntity.created(uri).build();
   }
 
   /**
@@ -204,5 +203,13 @@ public class CustomerController {
   @Getter
   private static class UserChgPwd {
     @NonNull String newPassword;
+  }
+
+  @Getter
+  private static class AddressInfo {
+    @NonNull int departureCode;
+    @NonNull String departureDetail;
+    @NonNull int destinationCode;
+    @NonNull String destinationDetail;
   }
 }
