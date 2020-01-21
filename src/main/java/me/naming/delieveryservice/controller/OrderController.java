@@ -34,7 +34,6 @@ public class OrderController {
    */
   @PostMapping("/users/{userId}")
   public ResponseEntity<OrderNum> orderInfo(@PathVariable String userId, @RequestBody OrderInfoDTO orderInfoDTO) {
-
     OrderInfoDTO copiedDto = orderInfoDTO.copy(userId);
     int orderNum = orderService.orderInfo(copiedDto);
 

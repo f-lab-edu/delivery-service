@@ -1,7 +1,7 @@
 package me.naming.delieveryservice.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.apache.ibatis.type.Alias;
 
@@ -29,11 +29,17 @@ import org.apache.ibatis.type.Alias;
  * Q)간단히 Setter를 적용해도 되지 않을까?
  *  - 멤버변수(userId)에 대한 Setter를 적용할 경우 객체의 불변성이 깨진다.
  *
- * Q)그러면 객체의 불변성을 유지하기 위해 Setter는 무조건 사용되지 말아야하는건가? Setter는 왜 필요할까?
+ * Q)그러면 객체의 불변성을 유지하기 위해 Setter는 무조건 사용되지 말아야하는건가?
+ *  - No! 불변성(immutable)을 유지하기 위한 Setter를 잘 사용해야 한다. 어떨때 필요하냐면 새로운 객체를 만들어야하나 기존 객체의 값을 변경해야 하는 경우 접근제한자를 통해 변수 값을 변경하는 것이다.
+ *    예를 들자면, PersonDTO의 멤버변수 height, weight가 최초 인스턴스 생성 시 cm, kg 단위로 표현된 변수라고하자.
+ *              하지만 서양에서는 feet와 pound 단위로 표현되야 하는데 이때 새로운 객체 생성 시 변수 값을 변경해줘야 한다.
+ *              초기 생성된 PersonDTO에서 단위가 변경된 새로운 인스턴스를 생성하기 위해서는 1)새로운 객체를 생성하고, 2)새로운 객체에 해당 단위로 변경한 값을 입력하고, 3)새로운 객체를 리턴하게 만들어야 한다.
+ *              이때 Setter는 private 메소드로 내부에서만 동작할 수 있도록 작성해준다면, 불변성을 유지하기 위한 Setter를 만들 수 있다.
+ *
+ * Q) Setter는 왜 필요할까?
  *  - Setter를 사용하는 이유는 멤버 변수에 값을 변경해줄 때 특정 조건을 만족할 시 값을 변경해주기 위해 사용된다.
- *    즉, 값을 내부에서 가공해 필드에 넣어줘야 하는 경우 사용한다.
  */
-@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Alias("OrderInfoDTO")
 public class OrderInfoDTO {
@@ -41,20 +47,80 @@ public class OrderInfoDTO {
   private int orderNum;
 
   // 배달(출발지, 도착지)주소
-  private final String userId;
-  @NonNull private final int departureCode;
-  @NonNull private final String departureDetail;
-  @NonNull private final int destinationCode;
-  @NonNull private final String destinationDetail;
+  private String userId;
+  @NonNull private int departureCode;
+  @NonNull private String departureDetail;
+  @NonNull private int destinationCode;
+  @NonNull private String destinationDetail;
 
   // 상품정보
-  @NonNull private final String category;
-  @NonNull private final String brandName;
-  @NonNull private final String productName;
+  @NonNull private String category;
+  @NonNull private String brandName;
+  @NonNull private String productName;
   private String comment;
 
-  public OrderInfoDTO copy(String userId){
-    return new OrderInfoDTO(orderNum, userId, departureCode, departureDetail, destinationCode, destinationDetail, category, brandName, productName, comment);
+  private static class OrderInfoDTOBuilder {
+
+    // 배달(출발지, 도착지)주소
+    private String userId;
+    private int departureCode;
+    private String departureDetail;
+    private int destinationCode;
+    private String destinationDetail;
+
+    // 상품정보
+    private String category;
+    private String brandName;
+    private String productName;
+    private String comment;
+
+    public OrderInfoDTOBuilder() {}
+
+    public OrderInfoDTOBuilder userId(String userId){
+      this.userId = userId;
+      return this;
+    }
+
+    public OrderInfoDTOBuilder locationInfo(int departureCode, String departureDetail, int destinationCode, String destinationDetail){
+      this.departureCode = departureCode;
+      this.departureDetail = departureDetail;
+      this.destinationCode = destinationCode;
+      this.destinationDetail = destinationDetail;
+      return this;
+    }
+
+    public OrderInfoDTOBuilder productInfo(String category, String brandName, String productName, String comment){
+      this.category = category;
+      this.brandName = brandName;
+      this.productName = productName;
+      this.comment = comment;
+      return this;
+    }
+
+    public OrderInfoDTO build(){
+      return new OrderInfoDTO(this);
+    }
   }
 
+  private OrderInfoDTO(OrderInfoDTOBuilder orderInfoDTOBuilder){
+    userId = orderInfoDTOBuilder.userId;
+    departureCode = orderInfoDTOBuilder.departureCode;
+    departureDetail = orderInfoDTOBuilder.departureDetail;
+    destinationCode = orderInfoDTOBuilder.destinationCode;
+    destinationDetail = orderInfoDTOBuilder.destinationDetail;
+
+    category = orderInfoDTOBuilder.category;
+    brandName = orderInfoDTOBuilder.brandName;
+    productName = orderInfoDTOBuilder.productName;
+    comment = orderInfoDTOBuilder.comment;
+  }
+
+  public OrderInfoDTO copy(String userId){
+
+    return new OrderInfoDTOBuilder()
+        .userId(userId)
+        .locationInfo(departureCode, departureDetail, destinationCode, destinationDetail)
+        .productInfo(category, brandName,productName,comment)
+        .build();
+  }
 }
