@@ -52,6 +52,7 @@ public class OrderInfoDTO {
   @NonNull private String departureDetail;
   @NonNull private int destinationCode;
   @NonNull private String destinationDetail;
+  private double distance;
 
   // 상품정보
   @NonNull private String category;
@@ -123,4 +124,5 @@ public class OrderInfoDTO {
         .productInfo(category, brandName,productName,comment)
         .build();
   }
+  public void setDistance(double distance) { this.distance = distance; }
 }

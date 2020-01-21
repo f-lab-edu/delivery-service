@@ -18,14 +18,15 @@
     <result property="productName" column="PRODUCT_NAME"/>
   </resultMap>
 
+  <!--주문정보 저장 후 생성된 주분번호를 selectKey를 활용해 Return해준다.-->
   <insert id="orderAddress" parameterType="OrderInfoDTO">
     INSERT INTO Delievery_Service.ORDERS(
     USER_ID,             DEPARTURE_ADDRESS_CODE,    DEPARTURE_ADDRESS_DETAIL,
-    DESTINATION_ADDRESS_CODE,    DESTINATION_ADDRESS_DETAIL)
+    DESTINATION_ADDRESS_CODE,    DESTINATION_ADDRESS_DETAIL, DISTANCE)
 
     VALUES(
     #{userId},   #{departureCode},    #{departureDetail},
-    #{destinationCode}, #{destinationDetail})
+    #{destinationCode}, #{destinationDetail}, #{distance})
 
     <selectKey keyProperty="orderNum" resultType="int">
       SELECT LAST_INSERT_ID()
