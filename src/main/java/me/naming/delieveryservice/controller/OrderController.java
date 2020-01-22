@@ -28,15 +28,15 @@ public class OrderController {
   /**
    * 주문정보 등록
    *  - 배달정보(출발지, 도착지)와 물품정보를 등록한다.
+   *  - 저장된 주문정보(배달정보 + 물품정보)의 주문번호를 리턴해준다.
    * @param userId
    * @param orderInfoDTO
    * @return
    */
   @PostMapping("/users/{userId}")
-  public ResponseEntity<OrderNum> orderInfo(@PathVariable String userId, @RequestBody OrderInfoDTO orderInfoDTO) {
+  public ResponseEntity<OrderNum> orderInfo(@PathVariable String userId, @RequestBody OrderInfoDTO orderInfoDTO){
     OrderInfoDTO copiedDto = orderInfoDTO.copy(userId);
     int orderNum = orderService.orderInfo(copiedDto);
-
     return ResponseEntity.status(HttpStatus.CREATED).body(new OrderNum(orderNum));
   }
 
