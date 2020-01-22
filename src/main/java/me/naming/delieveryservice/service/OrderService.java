@@ -10,6 +10,7 @@ import me.naming.delieveryservice.dao.FeeDao;
 import me.naming.delieveryservice.dao.OrderDao;
 import me.naming.delieveryservice.dao.PaymentDao;
 import me.naming.delieveryservice.dto.CoordinatesDTO;
+import me.naming.delieveryservice.dto.DeliveryPriceDTO;
 import me.naming.delieveryservice.dto.FeeDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
 import me.naming.delieveryservice.dto.PaymentDTO;
@@ -73,17 +74,17 @@ public class OrderService {
    * @param orderNum
    * @return
    */
-  public List<FeeDTO> deliveryPaymentInfo(int orderNum) {
+  public List<DeliveryPriceDTO> deliveryPaymentInfo(int orderNum) {
 
     float distance = orderDao.getOrderDistance(orderNum);
     List<FeeDTO> feeDTOList = feeDao.getFeeInfo();
     FeeDTO generalFeeInfo = feeDTOList.get(0);      // '일괄배송'에 관한 요금 정보 get
     FeeDTO fastFeeInfo = feeDTOList.get(1);         // '빠른배송'에 관한 요금 정보 get
 
-    FeeDTO generalFee = calculateDeliveryFee(generalFeeInfo, distance);
-    FeeDTO fastFee = calculateDeliveryFee(fastFeeInfo, distance);
+    DeliveryPriceDTO generalFee = calculateDeliveryFee(generalFeeInfo, distance);
+    DeliveryPriceDTO fastFee = calculateDeliveryFee(fastFeeInfo, distance);
 
-    List<FeeDTO> paymentInfoList = new ArrayList<>();
+    List<DeliveryPriceDTO> paymentInfoList = new ArrayList<>();
     paymentInfoList.add(generalFee);
     paymentInfoList.add(fastFee);
 
@@ -104,18 +105,18 @@ public class OrderService {
    * @param distance
    * @return
    */
-  private FeeDTO calculateDeliveryFee(FeeDTO feeDTO, float distance) {
+  private DeliveryPriceDTO calculateDeliveryFee(FeeDTO feeDTO, float distance) {
 
     // 거리가 기본거리(5km)이내인 경우
     if(distance <= feeDTO.getBasicDistance()) {
-      return feeDTO.copyDeliveryPrice(feeDTO.getBasicFee());
+      return new DeliveryPriceDTO(feeDTO.getDeliveryType(), feeDTO.getBasicFee());
     }
 
     // 거리가 기본거리(5km)이상인 경우 추가 요금 계산
     int extraDistanceCount = (int)Math.ceil((distance - feeDTO.getBasicDistance()) / feeDTO.getExtraDistance());
     int extraPrice = extraDistanceCount * feeDTO.getExtraFee();
+    int deliveryPrice = extraPrice + feeDTO.getBasicFee();
 
-    return feeDTO.copyDeliveryPrice(extraPrice+feeDTO.getBasicFee());
+    return new DeliveryPriceDTO(feeDTO.getDeliveryType(), deliveryPrice);
   }
-
 }

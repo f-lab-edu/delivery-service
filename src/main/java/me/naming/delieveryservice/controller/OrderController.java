@@ -1,11 +1,10 @@
 package me.naming.delieveryservice.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import me.naming.delieveryservice.dto.FeeDTO;
+import me.naming.delieveryservice.dto.DeliveryPriceDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
 import me.naming.delieveryservice.dto.PaymentDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
@@ -51,15 +50,9 @@ public class OrderController {
    * @return
    */
   @GetMapping("/{orderNum}/payments")
-  public ResponseEntity<List<DeliveryPaymentInfo>> deliveryPaymentInfo(@PathVariable int orderNum) {
-
-    List<FeeDTO> feeDTOList = orderService.deliveryPaymentInfo(orderNum);
-
-    List<DeliveryPaymentInfo> deliveryPaymentInfos = new ArrayList<>();
-    deliveryPaymentInfos.add(new DeliveryPaymentInfo(feeDTOList.get(0).getDeliveryType(), feeDTOList.get(0).getDeliveryPrice()));
-    deliveryPaymentInfos.add(new DeliveryPaymentInfo(feeDTOList.get(1).getDeliveryType(), feeDTOList.get(1).getDeliveryPrice()));
-
-    return ResponseEntity.ok(deliveryPaymentInfos);
+  public ResponseEntity<List<DeliveryPriceDTO>> deliveryPaymentInfo(@PathVariable int orderNum) {
+    List<DeliveryPriceDTO> deliveryPriceDTOList = orderService.deliveryPaymentInfo(orderNum);
+    return ResponseEntity.ok(deliveryPriceDTOList);
   }
 
   /**
@@ -93,10 +86,4 @@ public class OrderController {
     @NonNull private final int orderNum;
   }
 
-  @RequiredArgsConstructor
-  @Data
-  private class DeliveryPaymentInfo{
-    @NonNull private final String deliveryType;
-    @NonNull private final int deliveryPrice;
-  }
 }

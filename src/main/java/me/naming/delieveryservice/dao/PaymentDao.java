@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PaymentDao {
   int paymentInfo(PaymentDTO paymentDTO);
-
   void testDataDelete();
   int getCount();
 }
