@@ -1,7 +1,7 @@
 package me.naming.delieveryservice.dto;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.apache.ibatis.type.Alias;
 
@@ -39,88 +39,39 @@ import org.apache.ibatis.type.Alias;
  * Q) Setter는 왜 필요할까?
  *  - Setter를 사용하는 이유는 멤버 변수에 값을 변경해줄 때 특정 조건을 만족할 시 값을 변경해주기 위해 사용된다.
  */
-@NoArgsConstructor
+@Builder
 @Getter
 @Alias("OrderInfoDTO")
 public class OrderInfoDTO {
   // OrderMapper(id=orderAddress)에서 selectKey의 keyProperty를 지정하기 위해 생성
-  private int orderNum;
+  private final int orderNum;
 
   // 배달(출발지, 도착지)주소
-  private String userId;
-  @NonNull private int departureCode;
-  @NonNull private String departureDetail;
-  @NonNull private int destinationCode;
-  @NonNull private String destinationDetail;
+  private final String userId;
+  @NonNull private final int departureCode;
+  @NonNull private final String departureDetail;
+  @NonNull private final int destinationCode;
+  @NonNull private final String destinationDetail;
 
   // 상품정보
-  @NonNull private String category;
-  @NonNull private String brandName;
-  @NonNull private String productName;
-  private String comment;
+  @NonNull private final String category;
+  @NonNull private final String brandName;
+  @NonNull private final String productName;
+  private final String comment;
+  private final double distance;
 
-  private static class OrderInfoDTOBuilder {
-
-    // 배달(출발지, 도착지)주소
-    private String userId;
-    private int departureCode;
-    private String departureDetail;
-    private int destinationCode;
-    private String destinationDetail;
-
-    // 상품정보
-    private String category;
-    private String brandName;
-    private String productName;
-    private String comment;
-
-    public OrderInfoDTOBuilder() {}
-
-    public OrderInfoDTOBuilder userId(String userId){
-      this.userId = userId;
-      return this;
-    }
-
-    public OrderInfoDTOBuilder locationInfo(int departureCode, String departureDetail, int destinationCode, String destinationDetail){
-      this.departureCode = departureCode;
-      this.departureDetail = departureDetail;
-      this.destinationCode = destinationCode;
-      this.destinationDetail = destinationDetail;
-      return this;
-    }
-
-    public OrderInfoDTOBuilder productInfo(String category, String brandName, String productName, String comment){
-      this.category = category;
-      this.brandName = brandName;
-      this.productName = productName;
-      this.comment = comment;
-      return this;
-    }
-
-    public OrderInfoDTO build(){
-      return new OrderInfoDTO(this);
-    }
-  }
-
-  private OrderInfoDTO(OrderInfoDTOBuilder orderInfoDTOBuilder){
-    userId = orderInfoDTOBuilder.userId;
-    departureCode = orderInfoDTOBuilder.departureCode;
-    departureDetail = orderInfoDTOBuilder.departureDetail;
-    destinationCode = orderInfoDTOBuilder.destinationCode;
-    destinationDetail = orderInfoDTOBuilder.destinationDetail;
-
-    category = orderInfoDTOBuilder.category;
-    brandName = orderInfoDTOBuilder.brandName;
-    productName = orderInfoDTOBuilder.productName;
-    comment = orderInfoDTOBuilder.comment;
-  }
-
-  public OrderInfoDTO copy(String userId){
-
+  public OrderInfoDTO copy(String userId, double distance){
     return new OrderInfoDTOBuilder()
         .userId(userId)
-        .locationInfo(departureCode, departureDetail, destinationCode, destinationDetail)
-        .productInfo(category, brandName,productName,comment)
+        .departureCode(departureCode)
+        .departureDetail(departureDetail)
+        .destinationCode(destinationCode)
+        .destinationDetail(destinationDetail)
+        .category(category)
+        .brandName(brandName)
+        .productName(productName)
+        .comment(comment)
+        .distance(distance)
         .build();
   }
 }
