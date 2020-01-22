@@ -4,6 +4,9 @@ import java.net.URI;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import me.naming.delieveryservice.aop.UserIdObjParam;
+import me.naming.delieveryservice.aop.UserIdParam;
+import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.aop.LoginCheck;
 import me.naming.delieveryservice.aop.UserInfo;
 import lombok.AllArgsConstructor;
@@ -46,7 +49,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class CustomerController {
 
   @Autowired private UserService userService;
-  @Autowired private OrderService orderService;
 
   /**
    * 고객 회원가입 메서드
@@ -131,6 +133,7 @@ public class CustomerController {
    * 회원정보 조회
    * @return
    */
+  @UserIdParam
   @GetMapping(value = "/myinfo")
   public ResponseEntity userInfo(@UserInfo UserInfoDTO userId) {
 
@@ -203,13 +206,5 @@ public class CustomerController {
   @Getter
   private static class UserChgPwd {
     @NonNull String newPassword;
-  }
-
-  @Getter
-  private static class AddressInfo {
-    @NonNull int departureCode;
-    @NonNull String departureDetail;
-    @NonNull int destinationCode;
-    @NonNull String destinationDetail;
   }
 }

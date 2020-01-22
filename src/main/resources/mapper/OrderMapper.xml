@@ -4,29 +4,63 @@
 
 <mapper namespace="me.naming.delieveryservice.dao.OrderDao">
 
-  <resultMap id="orderInfo" type="me.naming.delieveryservice.dto.OrderDTO">
+  <resultMap id="userOrderList" type="me.naming.delieveryservice.dto.UserOrderListDTO">
     <result property="orderNum" column="ORDER_NUM"/>
     <result property="reqDate" column="DATE_CREATION"/>
     <result property="orderStatus" column="ORDER_STATUS"/>
     <result property="arrTime" column="ARRIVAL_TIME"/>
-    <result property="exArrTime" column="EX_ARRIVAL_TIME"/>
+    <result property="expectArrTime" column="EX_ARRIVAL_TIME"/>
 
-    <result property="userId" column="USER_ID"/>
-    <result property="deliveryId" column="DELIVERY_ID"/>
     <result property="departureCode" column="DEPARTURE_ADDRESS_CODE"/>
     <result property="departureDetail" column="DEPARTURE_ADDRESS_DETAIL"/>
     <result property="destinationCode" column="DESTINATION_ADDRESS_CODE"/>
     <result property="destinationDetail" column="DESTINATION_ADDRESS_DETAIL"/>
+    <result property="productName" column="PRODUCT_NAME"/>
   </resultMap>
 
-  <insert id="reqOrder">
+  <!--주문정보 저장 후 생성된 주분번호를 selectKey를 활용해 Return해준다.-->
+  <insert id="orderAddress" parameterType="OrderInfoDTO">
     INSERT INTO Delievery_Service.ORDERS(
     USER_ID,             DEPARTURE_ADDRESS_CODE,    DEPARTURE_ADDRESS_DETAIL,
-    DESTINATION_ADDRESS_CODE,    DESTINATION_ADDRESS_DETAIL)
+    DESTINATION_ADDRESS_CODE,    DESTINATION_ADDRESS_DETAIL, DISTANCE)
 
     VALUES(
-    #{userId},   #{dprtCode},    #{dprtDetail},
-    #{dstinCode}, #{dstinDetail})
+    #{userId},   #{departureCode},    #{departureDetail},
+    #{destinationCode}, #{destinationDetail}, #{distance})
+
+    <selectKey keyProperty="orderNum" resultType="int">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
   </insert>
+
+  <insert id="orderProduct" parameterType="OrderInfoDTO">
+    INSERT INTO Delievery_Service.PRODUCTS_INFO(
+    CATEGORY, BRAND_NAME, PRODUCT_NAME, COMMENT, ORDER_NUM)
+    VALUES(
+    #{category}, #{brandName}, #{productName}, #{comment}, #{orderNum})
+  </insert>
+
+  <select id="userOrderList" resultMap="userOrderList">
+    SELECT ORDERS.ORDER_NUM,
+    ORDERS.DATE_CREATION,
+    ORDERS.ORDER_STATUS,
+    ORDERS.USER_ID,
+    ORDERS.ARRIVAL_TIME,
+    ORDERS.EX_ARRIVAL_TIME,
+
+    ORDERS.DEPARTURE_ADDRESS_CODE,
+    ORDERS.DEPARTURE_ADDRESS_DETAIL,
+    ORDERS.DESTINATION_ADDRESS_CODE,
+    ORDERS.DESTINATION_ADDRESS_DETAIL,
+    PRODUCTS_INFO.PRODUCT_NAME
+    FROM ORDERS INNER JOIN PRODUCTS_INFO ON ORDERS.ORDER_NUM=PRODUCTS_INFO.ORDER_NUM
+    WHERE USER_ID = #{userId}
+  </select>
+
+  <select id="productInfoDetail" resultType="ProductInfoDTO">
+    SELECT CATEGORY, BRAND_NAME, PRODUCT_NAME, COMMENT
+    FROM PRODUCTS_INFO
+    WHERE ORDER_NUM = #{orderNum}
+  </select>
 
 </mapper>

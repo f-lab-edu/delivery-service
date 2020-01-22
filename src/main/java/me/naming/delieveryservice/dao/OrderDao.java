@@ -1,5 +1,9 @@
 package me.naming.delieveryservice.dao;
 
+import java.util.List;
+import me.naming.delieveryservice.dto.OrderInfoDTO;
+import me.naming.delieveryservice.dto.ProductInfoDTO;
+import me.naming.delieveryservice.dto.UserOrderListDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -7,5 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OrderDao {
 
-  int reqOrder(String userId, int dprtCode, String dprtDetail, int dstinCode, String dstinDetail);
+  void orderAddress(OrderInfoDTO orderInfoDTO);
+  void orderProduct(OrderInfoDTO orderInfoDTO);
+  List<UserOrderListDTO> userOrderList(String userId);
+  List<ProductInfoDTO> productInfoDetail(int orderNum);
 }
