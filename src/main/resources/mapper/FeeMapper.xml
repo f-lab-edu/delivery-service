@@ -4,17 +4,8 @@
 
 <mapper namespace="me.naming.delieveryservice.dao.FeeDao">
 
-  <resultMap id="feeDto" type="me.naming.delieveryservice.dto.FeeDTO">
-    <result property="deliveryType" column="DELIVERY_TYPE"/>
-    <result property="basicDistance" column="BASIC_DISTANCE"/>
-    <result property="basicFee" column="BASIC_FEE"/>
-    <result property="extraDistance" column="EXTRA_DISTANCE"/>
-    <result property="extraFee" column="EXTRA_FEE"/>
-  </resultMap>
-
-  <select id="getFeeInfo" resultType="feeDto">
-    SELECT DELIVERY_TYPE, BASIC_DISTANCE, BASIC_FEE, EXTRA_DISTANCE, EXTRA_FEE
-    FROM FEE
+  <select id="getFeeInfo" resultType="FeeDTO">
+    SELECT DELIVERY_TYPE, BASIC_DISTANCE, BASIC_FEE, EXTRA_DISTANCE, EXTRA_FEE FROM FEE
   </select>
 
 </mapper>

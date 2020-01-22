@@ -5,8 +5,8 @@
 <mapper namespace="me.naming.delieveryservice.dao.PaymentDao">
 
   <insert id="paymentInfo" parameterType="PaymentDTO" >
-    INSERT INTO PAYMENT(PAYMENT_TYPE, AMOUNT, ORDER_NUM, DELIVERY_TYPE)
-    VALUES (#{paymentType}, #{amount}, #{orderNum}, #{deliveryType})
+    INSERT INTO PAYMENT(PAYMENT_TYPE, AMOUNT, ORDER_NUM)
+    VALUES (#{paymentType}, #{amount}, #{orderNum})
   </insert>
 
   <delete id="testDataDelete">
