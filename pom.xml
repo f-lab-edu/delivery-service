@@ -22,6 +22,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -77,10 +83,32 @@
             <artifactId>spring-session-data-redis</artifactId>
         </dependency>
 
-        <!--log4j 설정-->
+        <!-- log4j2 설정 이유
+            [Slf4j란?]
+            slf4j는 다양한 Logging 프레임워크의 추상화 개념입니다. 따라서 slf4j는 단독으로 사용되지 않으며, Logging Framework 간에 쉬운 전환이 가능합니다.
+            따라서 일관된 로깅 코드를 작성할 수 있으며, 배포할 때 원하는 Logging Framework를 선택할 수 있습니다.
+
+            [log4j]
+            자바기반 로깅 유틸리티로써 디버그용 도구로 주로 사용되었습니다. 2015년 이후 아파치에서는 업데이트를 진행하고 있지 않습니다.
+
+            [logback]
+            log4j에 비해 빠른 실행이 가능하며, slf4j는 기본으로 지원합니다. 또한 보관 된 로그 파일 압축이 가능하며,
+            서버 중지없이 I/O Failure에 대한 복구를 지원합니다. 지원하는 로깅 레벨은 총 5단계(trace, debug, info, warn, error) 입니다.
+
+            [log4j2]
+            log4j2는 멀티스레드 환경에서 logback과 log4j보다 10배 가량 빠른 처리량을 보여줍니다.
+            또한 GC가 더 적게 발생하며, 실행 및 설정 과정에서 발생하는 로그 이벤트 출력이 가능합니다.
+            그 외에도 람다 포현식과 로그 레벨 커스텀이 가능하며, log4j, slf4j, JUL API를 지원합니다.
+
+            [log4j2 vs logback]
+            log4j2의 경우 잠금 없는 데이터 구조이지만, logback의 경우 ArrayBlockingQueue 구조로써 다중 스레드를 사용할 때 잠금 경합이 발생 할 수 있습니다.
+            따라서 log4j2는 스레드가 늘어날 수록 logback 보다 더 많은 로그 데이터를 기록 할 수 있습니다.
+            그외에도 동기 파일 로깅에 대한 응답 시간도 log4j2가 빠르며, 다양한 기능(ex.람다식 표현 가능)을 제공해줘 log4j2를 사용하게 되었습니다.
+            (참고 : https://logging.apache.org/log4j/2.x/performance.html)
+        -->
         <dependency>
-            <groupId>org.bgee.log4jdbc-log4j2</groupId>
-            <artifactId>log4jdbc-log4j2-jdbc4.1</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
 
         <!--AOP 설정-->
@@ -122,7 +150,7 @@
             <artifactId>gson</artifactId>
             <version>2.8.5</version>
         </dependency>
-
+      
     </dependencies>
 
     <build>

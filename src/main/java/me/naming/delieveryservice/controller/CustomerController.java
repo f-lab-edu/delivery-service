@@ -7,7 +7,19 @@ import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.aop.UserIdObjParam;
 import me.naming.delieveryservice.aop.UserIdParam;
 import me.naming.delieveryservice.dto.UserDTO;
+import me.naming.delieveryservice.aop.LoginCheck;
+import me.naming.delieveryservice.aop.UserInfo;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import me.naming.delieveryservice.dto.UserDTO;
+import me.naming.delieveryservice.dto.UserInfoDTO;
+import me.naming.delieveryservice.service.OrderService;
 import me.naming.delieveryservice.service.UserService;
+import me.naming.delieveryservice.utils.SessionUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
@@ -22,6 +34,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * Lombok을 활용한 생성자 자동생성
@@ -75,64 +89,120 @@ public class CustomerController {
    */
   @PostMapping(value = "/login")
   public ResponseEntity userLogin(HttpSession httpSession, @RequestBody UserLoginRequest userLoginRequest) throws Exception {
-
-    UserDTO userDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
-    httpSession.setAttribute("USER_ID", userDTO.getUserId());
+    UserInfoDTO userInfoDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
+    httpSession.setAttribute("UserInfo", userInfoDTO);
 
     return ResponseEntity.ok().build();
   }
 
+//  @PatchMapping(value = "/password")
+//  public ResponseEntity updateUserInfo(@UserInfo UserInfoDTO userInfoDTO, @RequestBody UserChgPwd userChgPwd) {
+//    userService.updatePwd(userInfoDTO.getUserId(), userChgPwd.getNewPassword());
+//    return ResponseEntity.ok().build();
+//  }
+
   /**
-   * 비밀번호를 변경하기 위한 메소드
-   * @param userId
+   * 비밀번호를 변경하기 위한 메서드
+   * @param httpSession
    * @param userChgPwd
    * @return
    */
-  @UserIdObjParam
+  @LoginCheck
   @PatchMapping(value = "/password")
-  public ResponseEntity updateUserInfo(String userId, @RequestBody UserChgPwd userChgPwd) {
-
+  public ResponseEntity updateUserInfo(HttpSession httpSession, @RequestBody UserChgPwd userChgPwd) {
+    String userId = SessionUtil.getUserId(httpSession);
     userService.updatePwd(userId, userChgPwd.getNewPassword());
     return ResponseEntity.ok().build();
   }
 
   /**
    * 회원탈퇴
-   * @param httpSession
+   * @param userId
    * @return
    */
   @DeleteMapping(value = "/myinfo")
-  public ResponseEntity deleteUserInfo(HttpSession httpSession) {
+  public ResponseEntity deleteUserInfo(String userId) {
 
-    String userId = httpSession.getAttribute("USER_ID").toString();
     userService.deleteUserInfo(userId);
+    HttpSession httpSession = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest().getSession();
     httpSession.invalidate();
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   /**
    * 회원정보 조회
-   * @param userId
    * @return
    */
   @UserIdParam
   @GetMapping(value = "/myinfo")
-  public ResponseEntity userInfo(String userId) {
+  public ResponseEntity userInfo(@UserInfo UserInfoDTO userId) {
 
-    UserDTO userDTO = userService.getUserInfo(userId);
+    UserDTO userDTO = userService.getUserInfo(userId.getUserId());
     Link link = ControllerLinkBuilder.linkTo(CustomerController.class).slash("myinfo").withRel("DeleteUserInfo");
     userDTO.add(link);
 
     return ResponseEntity.ok(userDTO);
   }
 
-  // --------------- Body로 Request 받을 데이터 지정 ---------------
+  /**
+   * 배달주소지 등록
+   * @param id
+   * @param addressInfo
+   * @return
+   */
+  @PostMapping("/{id}/delivery/location")
+  public ResponseEntity reqOrder(
+      @PathVariable String id, @RequestBody AddressInfo addressInfo) {
+
+    orderService.reqOrder(
+        id,
+        addressInfo.getDepartureCode(),
+        addressInfo.getDepartureDetail(),
+        addressInfo.getDestinationCode(),
+        addressInfo.getDepartureDetail());
+
+    URI uri = ControllerLinkBuilder.linkTo(CustomerController.class).toUri();
+    return ResponseEntity.created(uri).build();
+  }
+
+  /**
+   * 지정된 Body로 Request값을 설정할 때 장단점
+   *
+   * 장점
+   *  - 지정한 Key 값이 존재하지 않을 때 NullPointerException 발생. -> 지정한 파라미터의 유효성 검사
+   *  - UserDTO를 활용한 것이 아니라 따로 Request 타입을 생성함으로써 불필요한 변수 사용을 줄일 수 있다.
+   *  - Value 값을 지정한 데이터 타입으로 받아올 수 있다.
+   *    (ex. Client에서 "password"=123 으로 요청 시 자동적으로 형변환(int -> String)이 이뤄진다.)
+   *  - 각 Request별 클래스를 따로 만들어 관리하지 않아 불필요한 인스턴스 생성을 방지한다.
+   *  - 최초 JVM 실행 시 메모리 영역(static, heap, stack) 중 static 영역에 위치하며,
+   *    외부 클래스와 독립적인 형태로 heap 영역에 인스턴스를 생성하고 GC에 의해 자동적으로 수거될 수 있다.
+   *
+   * 단점
+   *  - 매번 각각의 Request 타입을 지정해야 한다.
+   *
+   * 기타내용
+   * Inner Class(Nested Class) 종류는 총 4가지이다.
+   * 정적 멤버 클래스(Static Inner class) / 멤버 클래스(Member class) / 지역 클래스(Local Class) / 익명 클래스(Anonymous class)이며,
+   * 크게 정적 클래스(static)와 비정적 클래스(non-static)로 나뉘게 된다. (정적 클래스는 '정적 멤버 클래스', 비정적 클래스는 '정적 멤버 클래스'외 3가지)
+   * 이 두가지의 차이점은
+   *  1) 멤버 클래스 생성 방법과
+   *  2) 외부 클래스의 변수와 메소드에 대한 접근이다.
+   *
+   * 정적 멤버 클래스(Static Inner class)는 외부 클래스의 인스턴스에 접근할 일이 없다면 무조건 사용한다.
+   * 왜냐하면, static을 생략하게 될 경우 외부 인스턴스로의 숨은 참조를 갖게 되어 시간과 공간이 소비되고, 가비지 컬렉션에서 클래스의 인스턴스를 수거하지 못해 메모리 누수가 생길 수 있다.
+   *
+   * 참고. 이펙티브 자바(아이템24), https://itdoer.tistory.com/113
+   */
   @Getter
   private static class UserLoginRequest {
     @NonNull String userId;
     @NonNull String password;
   }
 
+  /**
+   * 속성이 1개임에도 클래스로 감싸야 하는 이유.
+   *  - 속성이 1개이지만, RequestBody 받을 때 Body 값을 Object나 JSON으로 하지 않고 클래스로 선엄함으로써 명확하게 어떤 데이터를 받아오는지 알 수 있다.
+   */
   @Getter
   private static class UserChgPwd {
     @NonNull String newPassword;
