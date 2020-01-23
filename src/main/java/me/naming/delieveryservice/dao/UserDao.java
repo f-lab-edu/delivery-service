@@ -1,16 +1,19 @@
 package me.naming.delieveryservice.dao;
 
-import me.naming.delieveryservice.vo.UserVO;
+import me.naming.delieveryservice.dto.UserDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Mapper
 @Repository
 public interface UserDao {
 
-    List<UserVO> userInfo();
-    void insertUserInfo(String id, String password);
+    int insertUserInfo(UserDTO userDTO);
+    int checkIdDuplicate(String id);
+    UserDTO userLogin(String id, String password);
+    int updatePwd(String id, String newPassword);
+
+    int changeUserStatus(String id, UserDTO.Status status);
+    UserDTO getUserInfo(String id);
 
 }
