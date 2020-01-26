@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.api.KakaoAPI;
+import me.naming.delieveryservice.controller.OrderController;
+import me.naming.delieveryservice.dao.AccountDao;
 import me.naming.delieveryservice.dao.AddressDao;
+import me.naming.delieveryservice.dao.CardDao;
 import me.naming.delieveryservice.dao.FeeDao;
 import me.naming.delieveryservice.dao.OrderDao;
 import me.naming.delieveryservice.dao.PaymentDao;
@@ -13,6 +16,7 @@ import me.naming.delieveryservice.dto.CoordinatesDTO;
 import me.naming.delieveryservice.dto.DeliveryPriceDTO;
 import me.naming.delieveryservice.dto.FeeDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
+import me.naming.delieveryservice.dto.Payment;
 import me.naming.delieveryservice.dto.PaymentDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
 import me.naming.delieveryservice.utils.AddressUtil;
@@ -29,6 +33,8 @@ public class OrderService {
   @Autowired private KakaoAPI kakaoAPI;
   @Autowired private FeeDao feeDao;
   @Autowired private PaymentDao paymentDao;
+  @Autowired private CardDao cardDao;
+  @Autowired private AccountDao accountDao;
 
   public List<UserOrderListDTO> userOrderList(String userId){
     return orderDao.userOrderList(userId);
@@ -92,11 +98,28 @@ public class OrderService {
   }
 
   /**
-   * 결제 금액 저장
-   * @param paymentDTO
+   * 배달종류 저장(ex. 빠른배송 / 일괄배송)
+   * @param orderNum
+   * @param deliveryType
    */
-  public void paymentInfo(PaymentDTO paymentDTO){
-    paymentDao.paymentInfo(paymentDTO);
+  public void setDeliveryType(int orderNum, DeliveryPriceDTO.DeliveryType deliveryType) {
+    orderDao.setDeliveryType(orderNum, deliveryType);
+  }
+
+  /**
+   * 결제 금액 저장
+   * - Payment 테이블에 결제 정보 저장 후 생성된 pk(auto_increment)값을 Card 테이블에 전달
+   * - 전달 받은 값(PAYMENT의 payment_num(pk))과 함께 CARD 테이블에 카드 정보 저장
+   * @param payment
+   */
+  public void cardPayment(Payment.Card payment){
+    paymentDao.paymentInfo(payment);
+    cardDao.cardPayment(payment.getCardType(), payment.getCardNum(), payment.getValidDate(), payment.getCvcNum(), payment.getPaymentNum());
+  }
+
+  public void accountPayment(Payment.Account payment){
+    paymentDao.paymentInfo(payment);
+    accountDao.setAccountPaymentInfo(payment.getBankName(), payment.getAccountNum(), payment.getAccountName(), payment.getPaymentNum());
   }
 
   /**
@@ -119,4 +142,5 @@ public class OrderService {
 
     return new DeliveryPriceDTO(feeDTO.getDeliveryType(), deliveryPrice);
   }
+
 }

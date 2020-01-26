@@ -1,17 +1,21 @@
 package me.naming.delieveryservice.controller;
 
 import java.util.List;
+import javax.validation.Valid;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.DeliveryPriceDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
+import me.naming.delieveryservice.dto.Payment;
 import me.naming.delieveryservice.dto.PaymentDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
 import me.naming.delieveryservice.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,16 +60,35 @@ public class OrderController {
   }
 
   /**
-   * 결제 금액 저장
-   * @param paymentDTO
+   * 카드 결제
+   * @param orderNum
+   * @param cardRequest
    * @return
    */
-  @PostMapping("/{orderNum}/payments")
-  public ResponseEntity paymentInfo(@RequestBody PaymentDTO paymentDTO) {
-
-    orderService.paymentInfo(paymentDTO);
+  @Transactional
+  @PostMapping("/{orderNum}/payments/card")
+  public ResponseEntity cardPayment(@PathVariable int orderNum, @RequestBody @Valid Payment.Card cardRequest) {
+    cardRequest.setOrderNum(orderNum);
+    orderService.setDeliveryType(orderNum, cardRequest.getDeliveryType());
+    orderService.cardPayment(cardRequest);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
+
+  /**
+   * 계좌번호 결제
+   * @param orderNum
+   * @param accountRequest
+   * @return
+   */
+  @Transactional
+  @PostMapping("/{orderNum}/payments/account")
+  public ResponseEntity paymentInfoAccount(@PathVariable int orderNum, @RequestBody @Valid Payment.Account accountRequest) {
+    accountRequest.setOrderNum(orderNum);
+    orderService.setDeliveryType(orderNum, accountRequest.getDeliveryType());
+    orderService.accountPayment(accountRequest);
+    return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
+
 
   /**
    * 사용자 주문정보 조회

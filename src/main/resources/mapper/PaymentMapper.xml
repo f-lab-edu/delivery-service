@@ -4,18 +4,13 @@
 
 <mapper namespace="me.naming.delieveryservice.dao.PaymentDao">
 
-  <insert id="paymentInfo" parameterType="PaymentDTO" >
+  <insert id="paymentInfo" parameterType="Payment">
     INSERT INTO PAYMENT(PAYMENT_TYPE, AMOUNT, ORDER_NUM)
     VALUES (#{paymentType}, #{amount}, #{orderNum})
+    <selectKey keyProperty="paymentNum" resultType="int">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
   </insert>
-
-  <delete id="testDataDelete">
-    DELETE FROM PAYMENT
-  </delete>
-
-  <select id="getCount" resultType="int">
-    SELECT COUNT(*) AS COUNT FROM PAYMENT
-  </select>
 
 
 </mapper>
