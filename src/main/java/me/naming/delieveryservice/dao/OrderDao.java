@@ -13,8 +13,8 @@ public interface OrderDao {
 
   void orderAddress(OrderInfoDTO orderInfoDTO);
   void orderProduct(OrderInfoDTO orderInfoDTO);
-  void setDeliveryType(int orderNum, DeliveryPriceDTO.DeliveryType deliveryType);
+  void updateDeliveryType(int orderNum, DeliveryPriceDTO.DeliveryType deliveryType);
   List<UserOrderListDTO> userOrderList(String userId);
 
-  float getOrderDistance(int orderNum);
+  float selectOrderDistance(int orderNum);
 }

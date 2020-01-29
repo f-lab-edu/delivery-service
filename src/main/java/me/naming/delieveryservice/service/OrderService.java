@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.api.KakaoAPI;
-import me.naming.delieveryservice.controller.OrderController;
 import me.naming.delieveryservice.dao.AccountDao;
 import me.naming.delieveryservice.dao.AddressDao;
 import me.naming.delieveryservice.dao.CardDao;
@@ -16,13 +15,13 @@ import me.naming.delieveryservice.dto.CoordinatesDTO;
 import me.naming.delieveryservice.dto.DeliveryPriceDTO;
 import me.naming.delieveryservice.dto.FeeDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
-import me.naming.delieveryservice.dto.Payment;
 import me.naming.delieveryservice.dto.PaymentDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
 import me.naming.delieveryservice.utils.AddressUtil;
 import me.naming.delieveryservice.utils.DistanceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Log4j2
 @Service
@@ -80,10 +79,10 @@ public class OrderService {
    * @param orderNum
    * @return
    */
-  public List<DeliveryPriceDTO> deliveryPaymentInfo(int orderNum) {
+  public List<DeliveryPriceDTO> getDeliveryPriceList(int orderNum) {
 
-    float distance = orderDao.getOrderDistance(orderNum);
-    List<FeeDTO> feeDTOList = feeDao.getFeeInfo();
+    float distance = orderDao.selectOrderDistance(orderNum);
+    List<FeeDTO> feeDTOList = feeDao.selectFeeInfoList();
     FeeDTO generalFeeInfo = feeDTOList.get(0);      // '일괄배송'에 관한 요금 정보 get
     FeeDTO fastFeeInfo = feeDTOList.get(1);         // '빠른배송'에 관한 요금 정보 get
 
@@ -98,28 +97,24 @@ public class OrderService {
   }
 
   /**
-   * 배달종류 저장(ex. 빠른배송 / 일괄배송)
-   * @param orderNum
-   * @param deliveryType
-   */
-  public void setDeliveryType(int orderNum, DeliveryPriceDTO.DeliveryType deliveryType) {
-    orderDao.setDeliveryType(orderNum, deliveryType);
-  }
-
-  /**
    * 결제 금액 저장
+   * - 배달종류 저장(ex. 빠른배송 / 일괄배송)
    * - Payment 테이블에 결제 정보 저장 후 생성된 pk(auto_increment)값을 Card 테이블에 전달
    * - 전달 받은 값(PAYMENT의 payment_num(pk))과 함께 CARD 테이블에 카드 정보 저장
    * @param payment
    */
-  public void cardPayment(Payment.Card payment){
-    paymentDao.paymentInfo(payment);
-    cardDao.cardPayment(payment.getCardType(), payment.getCardNum(), payment.getValidDate(), payment.getCvcNum(), payment.getPaymentNum());
+  @Transactional
+  public void addPaymentInfoByCard(PaymentDTO.Card payment){
+    orderDao.updateDeliveryType(payment.getOrderNum(), payment.getDeliveryType());
+    paymentDao.insertPaymentInfo(payment);
+    cardDao.insertCardPayment(payment.getCardType(), payment.getCardNum(), payment.getValidDate(), payment.getCvcNum(), payment.getPaymentNum());
   }
 
-  public void accountPayment(Payment.Account payment){
-    paymentDao.paymentInfo(payment);
-    accountDao.setAccountPaymentInfo(payment.getBankName(), payment.getAccountNum(), payment.getAccountName(), payment.getPaymentNum());
+  @Transactional
+  public void addPaymentInfoByAccountTransfer(PaymentDTO.Account payment){
+    orderDao.updateDeliveryType(payment.getOrderNum(), payment.getDeliveryType());
+    paymentDao.insertPaymentInfo(payment);
+    accountDao.insertAccountTransferPayment(payment.getBankName(), payment.getAccountNum(), payment.getAccountName(), payment.getPaymentNum());
   }
 
   /**

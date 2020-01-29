@@ -4,7 +4,7 @@
 
 <mapper namespace="me.naming.delieveryservice.dao.FeeDao">
 
-  <select id="getFeeInfo" resultType="FeeDTO">
+  <select id="selectFeeInfoList" resultType="FeeDTO">
     SELECT DELIVERY_TYPE, BASIC_DISTANCE, BASIC_FEE, EXTRA_DISTANCE, EXTRA_FEE FROM FEE
   </select>
 

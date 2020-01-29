@@ -4,7 +4,7 @@
 
 <mapper namespace="me.naming.delieveryservice.dao.AccountDao">
 
-  <insert id="setAccountPaymentInfo">
+  <insert id="insertAccountTransferPayment">
     INSERT INTO ACCOUNT_TRANSFER(BANK_NAME, ACCOUNT_NUM, ACCOUNT_NAME, PAYMENT_NUM)
     VALUES (#{bankName}, #{accountNum}, #{accountName}, #{paymentNum})
   </insert>

@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FeeDao {
 
-  List<FeeDTO> getFeeInfo();
+  List<FeeDTO> selectFeeInfoList();
 
 }
