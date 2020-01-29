@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 @Mapper
 @Repository
 public interface AccountDao {
-  void insertAccountTransferPayment(String bankName, long accountNum, String accountName, int paymentNum);
+  <T> void insertAccountTransferPayment(T paymentType);
 }

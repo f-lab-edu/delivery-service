@@ -4,7 +4,7 @@
 
 <mapper namespace="me.naming.delieveryservice.dao.CardDao">
 
-  <insert id="insertCardPayment">
+  <insert id="insertCardPayment" parameterType="me.naming.delieveryservice.dto.PaymentDTO$Card">
     INSERT INTO CARD(CARD_TYPE, CARD_NUM, VALID_DATE, CVC_NUM, PAYMENT_NUM)
     VALUES (#{cardType}, #{cardNum}, #{validDate}, #{cvcNum}, #{paymentNum})
   </insert>

@@ -66,7 +66,7 @@ public class OrderController {
   @PostMapping("/{orderNum}/payments/card")
   public ResponseEntity paymentByCard(@PathVariable int orderNum, @RequestBody @Valid PaymentDTO.Card cardRequest) {
     cardRequest.setOrderNum(orderNum);
-    orderService.addPaymentInfoByCard(cardRequest);
+    orderService.addPaymentInfo(cardRequest);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -79,7 +79,7 @@ public class OrderController {
   @PostMapping("/{orderNum}/payments/account")
   public ResponseEntity paymentByAccountTransfer(@PathVariable int orderNum, @RequestBody @Valid PaymentDTO.Account accountRequest) {
     accountRequest.setOrderNum(orderNum);
-    orderService.addPaymentInfoByAccountTransfer(accountRequest);
+    orderService.addPaymentInfo(accountRequest);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 

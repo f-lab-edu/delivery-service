@@ -15,7 +15,6 @@ import me.naming.delieveryservice.dto.CoordinatesDTO;
 import me.naming.delieveryservice.dto.DeliveryPriceDTO;
 import me.naming.delieveryservice.dto.FeeDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
-import me.naming.delieveryservice.dto.PaymentDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
 import me.naming.delieveryservice.utils.AddressUtil;
 import me.naming.delieveryservice.utils.DistanceUtil;
@@ -99,22 +98,35 @@ public class OrderService {
   /**
    * 결제 금액 저장
    * - 배달종류 저장(ex. 빠른배송 / 일괄배송)
-   * - Payment 테이블에 결제 정보 저장 후 생성된 pk(auto_increment)값을 Card 테이블에 전달
-   * - 전달 받은 값(PAYMENT의 payment_num(pk))과 함께 CARD 테이블에 카드 정보 저장
-   * @param payment
+   * - Payment 테이블에 결제 정보 저장 후 생성된 pk(auto_increment)값을 리턴 받는다.
+   * - 전달 받은 값(PAYMENT의 payment_num(pk))과 함께 Card or Account 테이블에 결제 정보를 저장합니다.
+   *
+   * [1/29(수)]
+   * 유지보수 편의성을 위해(결제 수단이 늘어날 경우를 대비해) 코드 재수정
+   * 결제라는 공통된 관심 영역에서 '배달타입 변경'과 '결제정보 입력'이라는 구체적인 관심사를 하나의 메서드(addPaymentInfo)에서 실행시킬 수 있도록 작성했습니다.
+   * 하지만, 매개변수 타입인 결제 종류(ex. 카드, 계좌이체)에 따라 메서드가 추가되어 어떻게 모델링 할 것인지 고민이었습니다.
+   * 따라서 제네릭 타입으로 매개변수를 받아올 수 있도록 변경하고 Mapper에서 parameterType을 지정하여 코드를 수정했습니다.
+   *
+   * @param paymentType
+   * @param <T>
    */
   @Transactional
-  public void addPaymentInfoByCard(PaymentDTO.Card payment){
-    orderDao.updateDeliveryType(payment.getOrderNum(), payment.getDeliveryType());
-    paymentDao.insertPaymentInfo(payment);
-    cardDao.insertCardPayment(payment.getCardType(), payment.getCardNum(), payment.getValidDate(), payment.getCvcNum(), payment.getPaymentNum());
-  }
+  public <T> void addPaymentInfo(T paymentType) {
+    orderDao.updateDeliveryType(paymentType);
+    paymentDao.insertPaymentInfo(paymentType);
 
-  @Transactional
-  public void addPaymentInfoByAccountTransfer(PaymentDTO.Account payment){
-    orderDao.updateDeliveryType(payment.getOrderNum(), payment.getDeliveryType());
-    paymentDao.insertPaymentInfo(payment);
-    accountDao.insertAccountTransferPayment(payment.getBankName(), payment.getAccountNum(), payment.getAccountName(), payment.getPaymentNum());
+    switch (paymentType.getClass().getSimpleName()) {
+      case "Account":
+        accountDao.insertAccountTransferPayment(paymentType);
+        break;
+
+      case "Card":
+        cardDao.insertCardPayment(paymentType);
+        break;
+
+      default:
+        throw new IllegalArgumentException("존재하지 않는 Class 입니다");
+    }
   }
 
   /**
@@ -137,5 +149,4 @@ public class OrderService {
 
     return new DeliveryPriceDTO(feeDTO.getDeliveryType(), deliveryPrice);
   }
-
 }
