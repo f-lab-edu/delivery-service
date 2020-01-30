@@ -38,7 +38,7 @@ public class DeliveryManController {
   @PostMapping(value = "/login")
   public ResponseEntity loginDeliveryMan(@RequestBody DeliveryManLoginRequest deliveryManLoginRequest, HttpSession httpSession) {
     DeliveryManDTO deliveryManDTO = deliveryManService.getDeliveryManInfo(deliveryManLoginRequest.getId(), deliveryManLoginRequest.getPassword());
-    httpSession.setAttribute("UserInfo", deliveryManDTO);
+    httpSession.setAttribute("DeliveryManInfo", deliveryManDTO);
     return ResponseEntity.ok().build();
   }
 
