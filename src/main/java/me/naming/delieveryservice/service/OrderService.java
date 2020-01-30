@@ -120,6 +120,10 @@ public class OrderService {
     accountDao.setAccountPaymentInfo(payment.getBankName(), payment.getAccountNum(), payment.getAccountName(), payment.getPaymentNum());
   }
 
+  public void addReceivedOrder(String deliveryId, int orderNum){
+    orderDao.updateOrdersDeliveryId(deliveryId, orderNum);
+  }
+
   /**
    * 배송가격 계산
    * @param feeDTO

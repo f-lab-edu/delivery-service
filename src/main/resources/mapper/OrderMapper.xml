@@ -75,4 +75,10 @@
     WHERE ORDER_NUM = #{orderNum}
   </update>
 
+  <update id="updateOrdersDeliveryId">
+    UPDATE ORDERS
+    SET DELIVERY_ID = #{deliveryId}, ORDER_STATUS = '배달원 접수완료'
+    WHERE ORDER_NUM = #{orderNum}
+  </update>
+
 </mapper>

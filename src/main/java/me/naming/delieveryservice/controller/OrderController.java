@@ -2,7 +2,9 @@ package me.naming.delieveryservice.controller;
 
 import java.util.List;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.DeliveryPriceDTO;
@@ -26,6 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
   @Autowired OrderService orderService;
+
+  // 아래의 deliveryId 현재 잠시 임시 방편으로 작성한 코드입니다. 차후 세션에 존재하는 배달원 정보에서 Id 값을 받아올 계획입니다.
+  @PostMapping("/{deliveryId}")
+  public ResponseEntity orderReceivedByDeliveryMan(@PathVariable String deliveryId, @RequestBody RequestOrderNum orderNum){
+    orderService.addReceivedOrder(deliveryId, orderNum.getOrderNum());
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
 
   /**
    * 주문정보 등록
@@ -107,4 +116,8 @@ public class OrderController {
     @NonNull private final int orderNum;
   }
 
+  @Getter
+  private static class RequestOrderNum{
+    @NotNull private int orderNum;
+  }
 }

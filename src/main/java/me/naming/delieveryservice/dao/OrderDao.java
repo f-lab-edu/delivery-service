@@ -17,4 +17,6 @@ public interface OrderDao {
   List<UserOrderListDTO> userOrderList(String userId);
 
   float getOrderDistance(int orderNum);
+
+  void updateOrdersDeliveryId(String deliveryId, int orderNum);
 }
