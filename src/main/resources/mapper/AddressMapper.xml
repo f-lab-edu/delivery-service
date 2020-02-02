@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="me.naming.delieveryservice.dao.AddressDao">
+
+  <resultMap id="addressDTO" type="me.naming.delieveryservice.dto.AddressDTO">
+    <result property="cityName" column="CITY_NAME"/>
+    <result property="countryName" column="COUNTRY_NAME"/>
+    <result property="roadName" column="ROAD_NAME"/>
+    <result property="buildingNum" column="BUILDING_NUMBER"/>
+    <result property="buildingNumSide" column="BUILDING_NUMBER_SIDE"/>
+    <result property="buildingName" column="BUILDING_NAME"/>
+  </resultMap>
+
+  <select id="getAddressInfoByAddressCode" resultMap="addressDTO">
+    SELECT CITY_NAME, COUNTRY_NAME, ROAD_NAME, BUILDING_NUMBER
+    FROM ADDRESS
+    WHERE PID_ADDRESS_CODE = #{addressCode}
+  </select>
+
+</mapper>
