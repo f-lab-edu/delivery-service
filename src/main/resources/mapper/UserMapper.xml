@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="me.naming.delieveryservice.dao.UserDao">
+
+    <resultMap id="userInfo" type="me.naming.delieveryservice.dto.UserDTO">
+        <result property="userId"       column="ID" />
+        <result property="password"     column="PASSWORD" />
+        <result property="mobileNum"    column="MOBILE_NUM" />
+        <result property="name"         column="NAME" />
+        <result property="birthdate"    column="BIRTHDATE" />
+    </resultMap>
+
+    <insert id="insertUserInfo" parameterType="me.naming.delieveryservice.dto.UserDTO">
+        INSERT INTO Delievery_Service.USER_BASE(id, password, mobile_num)
+        VALUES(#{userId}, #{password}, #{mobileNum})
+    </insert>
+
+    <select id="checkIdDuplicate" resultType="int">
+        SELECT COUNT(id)
+        FROM USER_BASE
+        WHERE id = #{id}
+    </select>
+
+    <select id="userLogin" resultMap="userInfo">
+        SELECT ID, PASSWORD, MOBILE_NUM
+        FROM USER_BASE
+        WHERE id = #{id}
+        AND password = #{password}
+    </select>
+
+    <select id="getUserInfo" resultMap="userInfo">
+        SELECT STATUS, ID, PASSWORD, MOBILE_NUM, NAME, BIRTHDATE
+        FROM USER_BASE
+        WHERE ID = #{id}
+    </select>
+
+    <update id="updatePwd">
+        UPDATE USER_BASE
+        SET password = #{newPassword}
+        WHERE id = #{id}
+    </update>
+
+    <update id="changeUserStatus">
+        UPDATE USER_BASE
+        SET STATUS = #{status},
+        DATE_UPDATE = NOW()
+        WHERE ID = #{id}
+    </update>
+
+</mapper>

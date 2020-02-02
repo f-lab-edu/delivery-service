@@ -23,17 +23,15 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(redisHost, redisPort);      // Redis 연결 생성
+        return new LettuceConnectionFactory(redisHost, redisPort);      // 주소 값을 활용해 Redis 연결
     }
 
     @Bean
-    public RedisTemplate<?, ?> redisTemplate() {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();        // RedisTemplate 생성(String, String 형으로 데이터 타입 지정)
-        redisTemplate.setConnectionFactory(redisConnectionFactory());               // ConnectionFactory 설정
-        redisTemplate.setKeySerializer(new StringRedisSerializer());                // Serializer 설정하지 않을 경우 Redis에 저장된 정보가 이상하다...?
-        redisTemplate.setValueSerializer(new StringRedisSerializer());              // 위의 설명과 동일하다.
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());        // Key값 직렬화
+        redisTemplate.setValueSerializer(new StringRedisSerializer());      // Value값 직렬화
         return redisTemplate;
     }
-
 }
-
