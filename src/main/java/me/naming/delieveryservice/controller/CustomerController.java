@@ -12,8 +12,7 @@ import me.naming.delieveryservice.aop.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.dto.UserInfoDTO;
 import me.naming.delieveryservice.service.OrderService;
@@ -26,7 +25,6 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import javax.servlet.http.HttpSession;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +41,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  *  - @AllArgsConstructor : 모든 필드 값을 파라미터로 받는 생성자 생성
  *  - @RequiredArgsConstructor : final or @NonNull인 필드 값만 파라미터로 받는 생성자 생성
  */
+@Log4j2
 @RestController
 @RequestMapping("/customers")
 @Log4j2
@@ -91,15 +90,8 @@ public class CustomerController {
   public ResponseEntity userLogin(HttpSession httpSession, @RequestBody UserLoginRequest userLoginRequest) throws Exception {
     UserInfoDTO userInfoDTO = userService.userLogin(userLoginRequest.getUserId(), userLoginRequest.getPassword());
     httpSession.setAttribute("UserInfo", userInfoDTO);
-
     return ResponseEntity.ok().build();
   }
-
-//  @PatchMapping(value = "/password")
-//  public ResponseEntity updateUserInfo(@UserInfo UserInfoDTO userInfoDTO, @RequestBody UserChgPwd userChgPwd) {
-//    userService.updatePwd(userInfoDTO.getUserId(), userChgPwd.getNewPassword());
-//    return ResponseEntity.ok().build();
-//  }
 
   /**
    * 비밀번호를 변경하기 위한 메서드
@@ -116,15 +108,18 @@ public class CustomerController {
   }
 
   /**
-   * 회원탈퇴
-   * @param userId
+   * 회원상태 변경(삭제 or 재사용)
+   *  - 회원상태를 삭제한다고해서 DB에서 실제로 사용자 정보가 삭제되는 것은 아니다.
+   * @param id
+   * @param userStatus
+   * @param httpSession
    * @return
    */
-  @DeleteMapping(value = "/myinfo")
-  public ResponseEntity deleteUserInfo(String userId) {
-
-    userService.deleteUserInfo(userId);
-    HttpSession httpSession = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest().getSession();
+  @PatchMapping(value = "/{id}/info")
+  public ResponseEntity deleteUserInfo(@PathVariable String id, @RequestBody UserStatus userStatus, HttpSession httpSession) {
+    checkUserId(httpSession, id);
+    UserDTO.Status status = UserDTO.Status.check(userStatus.getUserStatus());
+    userService.changeUserStatus(id, status);
     httpSession.invalidate();
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
@@ -133,14 +128,11 @@ public class CustomerController {
    * 회원정보 조회
    * @return
    */
-  @UserIdParam
   @GetMapping(value = "/myinfo")
   public ResponseEntity userInfo(@UserInfo UserInfoDTO userId) {
-
     UserDTO userDTO = userService.getUserInfo(userId.getUserId());
     Link link = ControllerLinkBuilder.linkTo(CustomerController.class).slash("myinfo").withRel("DeleteUserInfo");
     userDTO.add(link);
-
     return ResponseEntity.ok(userDTO);
   }
 
@@ -206,5 +198,10 @@ public class CustomerController {
   @Getter
   private static class UserChgPwd {
     @NonNull String newPassword;
+  }
+
+  @Getter
+  private static class UserStatus {
+    @NonNull String userStatus;
   }
 }
