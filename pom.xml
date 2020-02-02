@@ -111,13 +111,46 @@
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
 
-        <!--Java 핵심 클래스 조작을 위한 충분한 메소드 제공-->
+        <!--AOP 설정-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!--StringUtils(문자열 작업 관련기능을 모아놓은 Library) 사용을 위해 추가-->
+        <!--사용이유 : NullPointException을 방지하기 위해-->
+        <!--메서드 참고(https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/StringUtils.html)-->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
         </dependency>
 
+        <!--Swagger 설정 : JSON 형태로 확인 가능(http://localhost:8080/v2/api-docs) -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+
+        <!--Swagger 설정 : HTML 형태로 확인 가능(http://localhost:8080/swagger-ui.html)-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+
+        <!--Gson 설정-->
+        <!--사용 이유 : KakaoMap REST API 요청 시 리턴 값(JSON)을 활용하기 위해-->
+        <!--Gson 선택 이유 : 작은 용량의 JSON을 직렬화/비직렬화에서 성능이 가장 좋다.-->
+        <!--참고 => (2014년) https://www.developer.com/lang/jscript/top-7-open-source-json-binding-providers-available-today.html-->
+        <!--    => (2019년) https://programmer.help/blogs/performance-comparison-of-several-common-json-libraries-in-java.html-->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+      
     </dependencies>
 
     <build>
