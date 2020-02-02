@@ -51,6 +51,8 @@ public class AuthenticationAop {
     Object data = httpSession.getAttribute("UserInfo");
 
     if(data == null)
-      throw new IllegalStateException("현재 로그인하지 않은 상태입니다.");
+      throw new IllegalStateException("현재 사용자가 로그인된 상태가 아닙니다.");
+
+    return  String.valueOf(data);
   }
 }
