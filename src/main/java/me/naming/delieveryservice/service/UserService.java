@@ -1,14 +1,13 @@
 package me.naming.delieveryservice.service;
 
-import lombok.extern.slf4j.Slf4j;
 import me.naming.delieveryservice.dao.UserDao;
 import me.naming.delieveryservice.dto.UserDTO;
+import me.naming.delieveryservice.dto.UserInfoDTO;
 import me.naming.delieveryservice.utils.SHA256Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Slf4j
-@Service("UserService")
+@Service
 public class UserService {
 
   @Autowired private UserDao userDao;
@@ -47,15 +46,15 @@ public class UserService {
    * @param password 사용자가 입력한 PWD. 암호화 하기 전
    * @return
    */
-  public UserDTO userLogin(String id, String password) {
+  public UserInfoDTO userLogin(String id, String password) {
 
     String encryptPwd = SHA256Util.encrypt(password);
-    UserDTO userDTO = userDao.userLogin(id, encryptPwd);
+    UserInfoDTO userInfoDTO = userDao.userLogin(id, encryptPwd);
 
-    if(userDTO == null) {
-      throw new NullPointerException("User Info is not exists. Check the Id or Password");
+    if(userInfoDTO == null) {
+      throw new RuntimeException("User Info is not exists. Check the Id or Password");
     }
-    return userDTO;
+    return userInfoDTO;
   }
 
   /**
