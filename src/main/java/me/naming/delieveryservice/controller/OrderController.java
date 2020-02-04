@@ -9,6 +9,8 @@ import me.naming.delieveryservice.dto.DeliveryPriceDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
 import me.naming.delieveryservice.dto.PaymentDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
+import me.naming.delieveryservice.service.AccountPaymentService;
+import me.naming.delieveryservice.service.CardPaymentService;
 import me.naming.delieveryservice.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
   @Autowired OrderService orderService;
+  @Autowired CardPaymentService cardPaymentService;
+  @Autowired AccountPaymentService accountPaymentService;
 
   /**
    * 주문정보 등록
@@ -66,7 +70,7 @@ public class OrderController {
   @PostMapping("/{orderNum}/payments/card")
   public ResponseEntity paymentByCard(@PathVariable int orderNum, @RequestBody @Valid PaymentDTO.Card cardRequest) {
     cardRequest.setOrderNum(orderNum);
-    orderService.addPaymentInfo(cardRequest);
+    orderService.payment(cardPaymentService, cardRequest);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -79,7 +83,7 @@ public class OrderController {
   @PostMapping("/{orderNum}/payments/account")
   public ResponseEntity paymentByAccountTransfer(@PathVariable int orderNum, @RequestBody @Valid PaymentDTO.Account accountRequest) {
     accountRequest.setOrderNum(orderNum);
-    orderService.addPaymentInfo(accountRequest);
+    orderService.payment(accountPaymentService, accountRequest);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
