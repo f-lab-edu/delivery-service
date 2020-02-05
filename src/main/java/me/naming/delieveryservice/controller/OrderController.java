@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.DeliveryPriceDTO;
+import me.naming.delieveryservice.dto.FeeDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
 import me.naming.delieveryservice.dto.PaymentDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
