@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import me.naming.delieveryservice.dto.DeliveryManDTO;
 import me.naming.delieveryservice.service.DeliveryManService;
+import me.naming.delieveryservice.utils.EnumKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,15 +31,14 @@ public class DeliveryManController {
 
   @GetMapping(value = "/{id}/exists")
   public ResponseEntity idExistsCheck(@PathVariable String id) {
-    boolean idCheck = deliveryManService.checkIdDuplicate(id);
-    if (idCheck) return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    if (deliveryManService.checkIdDuplicate(id)) return ResponseEntity.status(HttpStatus.CONFLICT).build();
     return ResponseEntity.ok().build();
   }
 
   @PostMapping(value = "/login")
   public ResponseEntity loginDeliveryMan(@RequestBody DeliveryManLoginRequest deliveryManLoginRequest, HttpSession httpSession) {
     DeliveryManDTO deliveryManDTO = deliveryManService.getDeliveryManInfo(deliveryManLoginRequest.getId(), deliveryManLoginRequest.getPassword());
-    httpSession.setAttribute("DeliveryManInfo", deliveryManDTO);
+    httpSession.setAttribute(EnumKeyUtil.DELIVERY_MAN_SESSION_KEY.toString(), deliveryManDTO);
     return ResponseEntity.ok().build();
   }
 

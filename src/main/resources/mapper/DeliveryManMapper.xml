@@ -9,8 +9,8 @@
     VALUES(#{id}, #{password}, #{name}, #{mobileNum}, #{birthday})
   </insert>
 
-  <select id="selectCountById" resultType="int">
-    SELECT COUNT(id) FROM DELIVERY_MAN_BASE WHERE ID = #{id}
+  <select id="selectExistsById" resultType="boolean">
+    SELECT EXISTS(SELECT ID FROM DELIVERY_MAN_BASE WHERE ID=#{id})
   </select>
 
   <select id="selectDeliveryManInfo" resultType="DeliveryManDTO">

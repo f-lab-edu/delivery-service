@@ -12,12 +12,13 @@ public class DeliveryManService {
   @Autowired private DeliveryManDao deliveryManDao;
 
   public void addDeliveryManInfo(DeliveryManDTO deliveryManDTO){
-    deliveryManDTO.setEncryptPassword(deliveryManDTO.getPassword());
+    String encryptPassword = SHA256Util.encrypt(deliveryManDTO.getPassword());
+    deliveryManDTO.changeToEnryptPassword(encryptPassword);
     deliveryManDao.insertDeliveryManInfo(deliveryManDTO.getId(), deliveryManDTO.getPassword(), deliveryManDTO.getName(), deliveryManDTO.getMobileNum(), deliveryManDTO.getBirthday());
   }
 
   public boolean checkIdDuplicate(String id){
-    return deliveryManDao.selectCountById(id) == 1;
+    return deliveryManDao.selectExistsById(id);
   }
 
   public DeliveryManDTO getDeliveryManInfo(String id, String password){
