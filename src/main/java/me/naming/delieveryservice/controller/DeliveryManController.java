@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import me.naming.delieveryservice.dto.DeliveryManDTO;
 import me.naming.delieveryservice.service.DeliveryManService;
-import me.naming.delieveryservice.utils.EnumKeyUtil;
+import me.naming.delieveryservice.utils.SessionKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,7 @@ public class DeliveryManController {
   @PostMapping(value = "/login")
   public ResponseEntity loginDeliveryMan(@RequestBody DeliveryManLoginRequest deliveryManLoginRequest, HttpSession httpSession) {
     DeliveryManDTO deliveryManDTO = deliveryManService.getDeliveryManInfo(deliveryManLoginRequest.getId(), deliveryManLoginRequest.getPassword());
-    httpSession.setAttribute(EnumKeyUtil.DELIVERY_MAN_SESSION_KEY.toString(), deliveryManDTO);
+    httpSession.setAttribute(SessionKey.DELIVERY_MAN_SESSION_KEY, deliveryManDTO);
     return ResponseEntity.ok().build();
   }
 

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 public interface DeliveryManDao {
 
   void insertDeliveryManInfo(String id, String password, String  name, String mobileNum, LocalDate birthday);
-  boolean selectExistsById(String id);
+  boolean isExistsId(String id);
   DeliveryManDTO selectDeliveryManInfo(String id, String password);
 
 }

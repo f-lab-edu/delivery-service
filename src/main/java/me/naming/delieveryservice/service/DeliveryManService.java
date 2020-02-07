@@ -18,7 +18,7 @@ public class DeliveryManService {
   }
 
   public boolean checkIdDuplicate(String id){
-    return deliveryManDao.selectExistsById(id);
+    return deliveryManDao.isExistsId(id);
   }
 
   public DeliveryManDTO getDeliveryManInfo(String id, String password){

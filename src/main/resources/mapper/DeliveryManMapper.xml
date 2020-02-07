@@ -9,7 +9,7 @@
     VALUES(#{id}, #{password}, #{name}, #{mobileNum}, #{birthday})
   </insert>
 
-  <select id="selectExistsById" resultType="boolean">
+  <select id="isExistsId" resultType="boolean">
     SELECT EXISTS(SELECT ID FROM DELIVERY_MAN_BASE WHERE ID=#{id})
   </select>
 
