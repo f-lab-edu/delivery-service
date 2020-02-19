@@ -12,12 +12,12 @@ public interface UserDao {
   int insertUserInfo(UserDTO userDTO);
 
   int checkIdDuplicate(String id);
-
   UserInfoDTO userLogin(String id, String password);
-
   int updatePwd(String id, String newPassword);
-
   int deleteUserInfo(String id);
-
   UserDTO getUserInfo(String id);
+  
+  int changeUserStatus(String id, UserDTO.Status status);
+  UserDTO getUserInfo(String id);
+
 }
