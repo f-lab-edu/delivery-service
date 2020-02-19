@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface FeeDao {
 
   @Cacheable(cacheNames = "FeeInfo")
-  List<FeeDTO> getFeeInfo();
+  List<FeeDTO> selectFeeInfoList();
 
 }

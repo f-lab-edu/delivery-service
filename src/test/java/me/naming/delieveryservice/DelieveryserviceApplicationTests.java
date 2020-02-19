@@ -1,14 +1,7 @@
 package me.naming.delieveryservice;
 
-import static org.hamcrest.CoreMatchers.is;
-
-import me.naming.delieveryservice.dao.PaymentDao;
-import me.naming.delieveryservice.dto.PaymentDTO;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -28,20 +21,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class DelieveryserviceApplicationTests {
 
-    private PaymentDTO paymentDTO;
-    @Autowired PaymentDao paymentDao;
-
-    @Before
-    public void testSetting(){
-        paymentDTO = new PaymentDTO("계좌이체", 4500, 44, "빠른배송");
-    }
-
     @Test
-    public void contextLoads() {
-        int result = paymentDao.paymentInfo(paymentDTO);
-        Assert.assertThat(1, is(result));
-        paymentDao.testDataDelete();
-        int count = paymentDao.getCount();
-        Assert.assertThat(1, is(count));
-    }
+    public void contextLoads() { }
 }
