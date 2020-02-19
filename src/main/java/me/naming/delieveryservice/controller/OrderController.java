@@ -1,5 +1,6 @@
 package me.naming.delieveryservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.Data;
 import lombok.NonNull;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
   @Autowired OrderService orderService;
+  @Autowired ObjectMapper objectMapper;
 
   /**
    * 주문정보 등록
@@ -36,10 +38,8 @@ public class OrderController {
    */
   @PostMapping("/users/{userId}")
   public ResponseEntity<OrderNum> orderInfo(@PathVariable String userId, @RequestBody OrderInfoDTO orderInfoDTO){
-
     orderInfoDTO.setUserId(userId);
     int orderNum = orderService.orderInfo(orderInfoDTO);
-
     return ResponseEntity.status(HttpStatus.CREATED).body(new OrderNum(orderNum));
   }
 

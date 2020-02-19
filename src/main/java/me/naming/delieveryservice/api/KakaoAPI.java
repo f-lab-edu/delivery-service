@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.dto.CoordinatesDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +25,7 @@ public class KakaoAPI {
 
   // RestTemplate를 전역변수로 사용한 이유는 thread-safe하기 때문이다.
   // 참고 : https://www.notion.so/Delivery-Service-663d02f1c1264c23ba8c3d2ecf784793#91b74503c8f846bcaacd2a460ddb6e81
-  RestTemplate restTemplate = new RestTemplate();
+  @Autowired RestTemplate restTemplate;
 
   /**
    * '도로명 주소'를 좌표 값으로 변환
@@ -34,27 +35,26 @@ public class KakaoAPI {
    * @return
    */
   public CoordinatesDTO getCoordinatesByAddress(String address) {
-    HttpHeaders httpHeaders = new HttpHeaders();
 
+    HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.add("Authorization", kakaoRestApiKey);
+
     UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(kakaoMapUrl)
         .queryParam("query", address)
         .build(false);
 
     ResponseEntity<String> responseEntity = restTemplate.exchange(uriComponents.toUriString(), HttpMethod.GET, new HttpEntity<String>(httpHeaders), String.class);
 
-    if(responseEntity.getStatusCodeValue() != 200) {
-      log.error(responseEntity.getBody());
-      throw new RuntimeException("카카오맵 rest-api 에러");
-    }
-
     JsonObject jsonObject = new Gson().fromJson(responseEntity.getBody(), JsonObject.class);
     JsonArray getDocuments = jsonObject.get("documents").getAsJsonArray();
+
+    // statusCode는 200이나 결과 값이 존재하지 않을 수 있어서 Exception처리
+    if(getDocuments.size() == 0)
+      throw new ArrayIndexOutOfBoundsException("kakaoAPI 결과 값이 존재하지 않습니다. 검색한 주소는 '"+address+"' 입니다.");
 
     double longitude = getDocuments.get(0).getAsJsonObject().get("x").getAsDouble();
     double latitude = getDocuments.get(0).getAsJsonObject().get("y").getAsDouble();
 
     return new CoordinatesDTO(latitude, longitude);
   }
-
 }

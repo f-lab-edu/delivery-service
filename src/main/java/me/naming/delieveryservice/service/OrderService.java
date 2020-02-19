@@ -9,6 +9,7 @@ import me.naming.delieveryservice.dao.AddressDao;
 import me.naming.delieveryservice.dao.FeeDao;
 import me.naming.delieveryservice.dao.OrderDao;
 import me.naming.delieveryservice.dao.PaymentDao;
+import me.naming.delieveryservice.dto.AddressDTO;
 import me.naming.delieveryservice.dto.CoordinatesDTO;
 import me.naming.delieveryservice.dto.DeliveryPriceDTO;
 import me.naming.delieveryservice.dto.FeeDTO;
@@ -47,8 +48,8 @@ public class OrderService {
    */
   public int orderInfo(OrderInfoDTO orderInfoDTO){
 
-    HashMap<String,Object> departureInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDepartureCode());
-    HashMap<String,Object> destinationInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDestinationCode());
+    AddressDTO departureInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDepartureCode());
+    AddressDTO destinationInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDestinationCode());
 
     String departureAddress = AddressUtil.getRoadAddress(departureInfoFromDB);
     String destinationAddress = AddressUtil.getRoadAddress(destinationInfoFromDB);
