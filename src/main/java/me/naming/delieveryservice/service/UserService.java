@@ -37,10 +37,10 @@ public class UserService {
   public UserInfoDTO userLogin(String id, String password) {
     String encryptPwd = SHA256Util.encrypt(password);
     UserInfoDTO userInfoDTO = userDao.userLogin(id, encryptPwd);
-    if (userDTO == null)
+    if (userInfoDTO == null)
       throw new RuntimeException("User Info is not exists. Check the Id or Password");
 
-    return userDTO;
+    return userInfoDTO;
   }
 
   /**

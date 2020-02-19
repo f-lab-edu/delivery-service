@@ -1,30 +1,20 @@
 package me.naming.delieveryservice.controller;
 
 import java.net.URI;
+import javax.servlet.http.HttpSession;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
-import me.naming.delieveryservice.aop.UserIdObjParam;
-import me.naming.delieveryservice.aop.UserIdParam;
-import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.aop.LoginCheck;
-import me.naming.delieveryservice.aop.UserInfo;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.dto.UserDTO;
 import me.naming.delieveryservice.dto.UserInfoDTO;
-import me.naming.delieveryservice.service.OrderService;
 import me.naming.delieveryservice.service.UserService;
 import me.naming.delieveryservice.utils.SessionUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import javax.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,8 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * Lombok을 활용한 생성자 자동생성
@@ -41,7 +29,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  *  - @AllArgsConstructor : 모든 필드 값을 파라미터로 받는 생성자 생성
  *  - @RequiredArgsConstructor : final or @NonNull인 필드 값만 파라미터로 받는 생성자 생성
  */
-@Log4j2
 @RestController
 @RequestMapping("/customers")
 @Log4j2
@@ -115,9 +102,9 @@ public class CustomerController {
    * @param httpSession
    * @return
    */
+  @LoginCheck
   @PatchMapping(value = "/{id}/info")
   public ResponseEntity deleteUserInfo(@PathVariable String id, @RequestBody UserStatus userStatus, HttpSession httpSession) {
-    checkUserId(httpSession, id);
     UserDTO.Status status = UserDTO.Status.check(userStatus.getUserStatus());
     userService.changeUserStatus(id, status);
     httpSession.invalidate();
@@ -128,33 +115,13 @@ public class CustomerController {
    * 회원정보 조회
    * @return
    */
+  @LoginCheck
   @GetMapping(value = "/myinfo")
-  public ResponseEntity userInfo(@UserInfo UserInfoDTO userId) {
+  public ResponseEntity userInfo(UserInfoDTO userId) {
     UserDTO userDTO = userService.getUserInfo(userId.getUserId());
     Link link = ControllerLinkBuilder.linkTo(CustomerController.class).slash("myinfo").withRel("DeleteUserInfo");
     userDTO.add(link);
     return ResponseEntity.ok(userDTO);
-  }
-
-  /**
-   * 배달주소지 등록
-   * @param id
-   * @param addressInfo
-   * @return
-   */
-  @PostMapping("/{id}/delivery/location")
-  public ResponseEntity reqOrder(
-      @PathVariable String id, @RequestBody AddressInfo addressInfo) {
-
-    orderService.reqOrder(
-        id,
-        addressInfo.getDepartureCode(),
-        addressInfo.getDepartureDetail(),
-        addressInfo.getDestinationCode(),
-        addressInfo.getDepartureDetail());
-
-    URI uri = ControllerLinkBuilder.linkTo(CustomerController.class).toUri();
-    return ResponseEntity.created(uri).build();
   }
 
   /**

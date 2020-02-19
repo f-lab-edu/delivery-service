@@ -1,7 +1,6 @@
 package me.naming.delieveryservice.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.api.KakaoAPI;
@@ -19,7 +18,6 @@ import me.naming.delieveryservice.dto.UserOrderListDTO;
 import me.naming.delieveryservice.utils.AddressUtil;
 import me.naming.delieveryservice.utils.DistanceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -139,7 +137,7 @@ public class OrderService {
 
     // 거리가 기본거리(5km)이내인 경우
     if(distance <= feeDTO.getBasicDistance()) {
-      return new DeliveryPriceDTO(DeliveryPriceDTO.DeliveryType.Type.valueOf(feeDTO.getDeliveryType()), feeDTO.getBasicFee());
+      return new DeliveryPriceDTO(DeliveryPriceDTO.DeliveryType.valueOf(feeDTO.getDeliveryType()), feeDTO.getBasicFee());
     }
 
     // 거리가 기본거리(5km)이상인 경우 추가 요금 계산
@@ -147,6 +145,6 @@ public class OrderService {
     int extraPrice = extraDistanceCount * feeDTO.getExtraFee();
     int deliveryPrice = extraPrice + feeDTO.getBasicFee();
 
-    return new DeliveryPriceDTO(DeliveryPriceDTO.DeliveryType.Type.valueOf(feeDTO.getDeliveryType()), deliveryPrice);
+    return new DeliveryPriceDTO(DeliveryPriceDTO.DeliveryType.valueOf(feeDTO.getDeliveryType()), deliveryPrice);
   }
 }
