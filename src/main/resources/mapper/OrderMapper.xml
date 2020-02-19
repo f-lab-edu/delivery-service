@@ -63,13 +63,13 @@
     WHERE ORDER_NUM = #{orderNum}
   </select>
 
-  <select id="getOrderDistance" resultType="Float">
+  <select id="selectOrderDistance" resultType="Float">
     SELECT DISTANCE
     FROM ORDERS
     WHERE ORDER_NUM = #{orderNum}
   </select>
 
-  <update id="setDeliveryType">
+  <update id="updateDeliveryType" parameterType="PaymentDTO">
     UPDATE ORDERS
     SET DELIVERY_TYPE = #{deliveryType}
     WHERE ORDER_NUM = #{orderNum}

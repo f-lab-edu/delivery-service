@@ -7,13 +7,14 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.DeliveryPriceDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
-import me.naming.delieveryservice.dto.Payment;
+import me.naming.delieveryservice.dto.PaymentDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
+import me.naming.delieveryservice.service.AccountPaymentService;
+import me.naming.delieveryservice.service.CardPaymentService;
 import me.naming.delieveryservice.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
   @Autowired OrderService orderService;
+  @Autowired CardPaymentService cardPaymentService;
+  @Autowired AccountPaymentService accountPaymentService;
 
   /**
    * 주문정보 등록
@@ -45,6 +48,7 @@ public class OrderController {
   }
 
   /**
+   * 배달가격 정보
    * 배달거리에 따라 사용자가 지불해야 하는 금액을 제공하기 위한 메소드
    *  - 주문거리에 따라 결제 금액이 다르게 보인다.(ex. ~5km 기본금액 / +3km씩
    *  - 기본금액+2000원 / ...) * - 각각의 금액(일괄배송, 빠른배송)을 모두 제공해준다.
@@ -52,8 +56,8 @@ public class OrderController {
    * @return
    */
   @GetMapping("/{orderNum}/payments")
-  public ResponseEntity<List<DeliveryPriceDTO>> deliveryPaymentInfo(@PathVariable int orderNum) {
-    List<DeliveryPriceDTO> deliveryPriceDTOList = orderService.deliveryPaymentInfo(orderNum);
+  public ResponseEntity<List<DeliveryPriceDTO>> deliveryPrice(@PathVariable int orderNum) {
+    List<DeliveryPriceDTO> deliveryPriceDTOList = orderService.getDeliveryPriceList(orderNum);
     return ResponseEntity.ok(deliveryPriceDTOList);
   }
 
@@ -63,30 +67,25 @@ public class OrderController {
    * @param cardRequest
    * @return
    */
-  @Transactional
   @PostMapping("/{orderNum}/payments/card")
-  public ResponseEntity cardPayment(@PathVariable int orderNum, @RequestBody @Valid Payment.Card cardRequest) {
+  public ResponseEntity paymentByCard(@PathVariable int orderNum, @RequestBody @Valid PaymentDTO.Card cardRequest) {
     cardRequest.setOrderNum(orderNum);
-    orderService.setDeliveryType(orderNum, cardRequest.getDeliveryType());
-    orderService.cardPayment(cardRequest);
+    orderService.payment(cardPaymentService, cardRequest);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
   /**
-   * 계좌번호 결제
+   * 계좌이체 결제
    * @param orderNum
    * @param accountRequest
    * @return
    */
-  @Transactional
   @PostMapping("/{orderNum}/payments/account")
-  public ResponseEntity paymentInfoAccount(@PathVariable int orderNum, @RequestBody @Valid Payment.Account accountRequest) {
+  public ResponseEntity paymentByAccountTransfer(@PathVariable int orderNum, @RequestBody @Valid PaymentDTO.Account accountRequest) {
     accountRequest.setOrderNum(orderNum);
-    orderService.setDeliveryType(orderNum, accountRequest.getDeliveryType());
-    orderService.accountPayment(accountRequest);
+    orderService.payment(accountPaymentService, accountRequest);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
-
 
   /**
    * 사용자 주문정보 조회

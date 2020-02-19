@@ -4,7 +4,7 @@
 
 <mapper namespace="me.naming.delieveryservice.dao.PaymentDao">
 
-  <insert id="paymentInfo" parameterType="Payment">
+  <insert id="insertPaymentInfo" parameterType="PaymentDTO">
     INSERT INTO PAYMENT(PAYMENT_TYPE, AMOUNT, ORDER_NUM)
     VALUES (#{paymentType}, #{amount}, #{orderNum})
     <selectKey keyProperty="paymentNum" resultType="int">
@@ -12,5 +12,12 @@
     </selectKey>
   </insert>
 
+  <insert id="insertPaymentInfo1" parameterType="PaymentDTO">
+    INSERT INTO PAYMENT(PAYMENT_TYPE, AMOUNT, ORDER_NUM)
+    VALUES (#{paymentType}, #{amount}, #{orderNum})
+    <selectKey keyProperty="paymentNum" resultType="int">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+  </insert>
 
 </mapper>

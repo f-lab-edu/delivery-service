@@ -10,7 +10,7 @@ public class DeliveryPriceDTO {
   private final int deliveryPrice;
 
   public enum DeliveryType{
-    빠른배송,
-    일괄배송
+    FAST,
+    BASIC
   }
 }
