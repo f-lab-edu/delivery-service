@@ -94,13 +94,7 @@ public class CustomerController {
 
     return ResponseEntity.ok().build();
   }
-
-//  @PatchMapping(value = "/password")
-//  public ResponseEntity updateUserInfo(@UserInfo UserInfoDTO userInfoDTO, @RequestBody UserChgPwd userChgPwd) {
-//    userService.updatePwd(userInfoDTO.getUserId(), userChgPwd.getNewPassword());
-//    return ResponseEntity.ok().build();
-//  }
-
+  
   /**
    * 비밀번호를 변경하기 위한 메서드
    * @param httpSession
