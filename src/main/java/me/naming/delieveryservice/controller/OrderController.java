@@ -42,8 +42,7 @@ public class OrderController {
    */
   @PostMapping("/users/{userId}")
   public ResponseEntity<OrderNum> orderInfo(@PathVariable String userId, @RequestBody OrderInfoDTO orderInfoDTO){
-    orderInfoDTO.setUserId(userId);
-    int orderNum = orderService.orderInfo(orderInfoDTO);
+    int orderNum = orderService.orderInfo(userId, orderInfoDTO);
     return ResponseEntity.status(HttpStatus.CREATED).body(new OrderNum(orderNum));
   }
 

@@ -1,7 +1,9 @@
 package me.naming.delieveryservice.aop;
 
+import java.util.Arrays;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import lombok.extern.log4j.Log4j2;
+import me.naming.delieveryservice.dto.UserInfoDTO;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -12,52 +14,41 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Aspect
 @Component
-@Log4j2
 public class AuthenticationAop {
 
   /**
-   * 로그인 체크
+   * execution 내용중 첫번째 '*'은 리턴타입을 나타내며 두번째부터 시작하는 '*(.., @UserInfo (*), ..)'은 @UserInfo 애노테이션이 선언된 부분 양옆의 다른 파라미터 0개 이상을 허용하겠다는 패턴이다.
+   * 참고 사이트
+   *  - https://haviyj.tistory.com/m/36?category=692364
+   *  - https://jojoldu.tistory.com/71
+   * @param joinPoint
+   * @return
+   * @throws Throwable
    */
-  @Before("@annotation(CheckSessionUserId)")
+  @Around("execution(* *(.., @UserInfo (*), ..))")
+  public Object convertUser(ProceedingJoinPoint joinPoint) throws Throwable {
+
+    HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+    UserInfoDTO userInfoDTO = (UserInfoDTO) request.getSession().getAttribute("UserInfo");
+
+    Object[] args =
+        Arrays.stream(joinPoint.getArgs())
+            .map(
+                data -> {
+                  if (data instanceof UserInfoDTO) {
+                    data = userInfoDTO;
+                  }
+                  return data;
+                })
+            .toArray();
+
+    return joinPoint.proceed(args);
+  }
+
+  @Before("@annotation(LoginCheck)")
   public void checkSessionUserId() {
-    getSessionId();
-  }
-
-  /**
-   * 매개변수가 1개(userId)인 경우. 로그인 체크 후 userId 전달
-   * @param joinPoint
-   * @return
-   * @throws Throwable
-   */
-  @Around("@annotation(UserIdParam)")
-  public Object userLoginCheckParam1(ProceedingJoinPoint joinPoint) throws Throwable{
-
-    String userId = getSessionId();
-    Object resultObj = joinPoint.proceed(new Object[] {userId});
-    return resultObj;
-  }
-
-  /**
-   * 매개변수가 2개(userId, Object)인 경우. 로그인 체크 후 userId, Object 전달
-   * @param joinPoint
-   * @return
-   * @throws Throwable
-   */
-  @Around("@annotation(UserIdObjParam)")
-  public Object userLoginCheckParam2(ProceedingJoinPoint joinPoint) throws Throwable{
-
-    String userId = getSessionId();
-    Object[] objList = joinPoint.getArgs();
-    Object getDTO = objList[1];
-
-    Object resultObj = joinPoint.proceed(new Object[] {userId, getDTO});
-    return resultObj;
-
-  }
-
-  private String getSessionId() {
     HttpSession httpSession = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest().getSession();
-    Object data = httpSession.getAttribute("USER_ID");
+    Object data = httpSession.getAttribute("UserInfo");
 
     if(data == null)
       throw new IllegalStateException("현재 사용자가 로그인된 상태가 아닙니다.");

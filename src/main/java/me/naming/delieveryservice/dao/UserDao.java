@@ -1,6 +1,7 @@
 package me.naming.delieveryservice.dao;
 
 import me.naming.delieveryservice.dto.UserDTO;
+import me.naming.delieveryservice.dto.UserInfoDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +13,7 @@ public interface UserDao {
 
   int checkIdDuplicate(String id);
 
-  UserDTO userLogin(String id, String password);
+  UserInfoDTO userLogin(String id, String password);
 
   int updatePwd(String id, String newPassword);
 

@@ -47,7 +47,7 @@ public class OrderService {
    * @param orderInfoDTO
    * @return
    */
-  public int orderInfo(OrderInfoDTO orderInfoDTO){
+  public int orderInfo(String userId, OrderInfoDTO orderInfoDTO){
 
     AddressDTO departureInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDepartureCode());
     AddressDTO destinationInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDestinationCode());
@@ -65,9 +65,9 @@ public class OrderService {
             destinationCoordinates.getLatitude(),
             destinationCoordinates.getLongitude());
 
-    orderInfoDTO.setDistance(kmDistance);
-    orderDao.orderAddress(orderInfoDTO);
-    orderDao.orderProduct(orderInfoDTO);
+    OrderInfoDTO copiedDTO = orderInfoDTO.copy(userId, kmDistance);
+    orderDao.orderAddress(copiedDTO);
+    orderDao.orderProduct(copiedDTO);
 
     return orderInfoDTO.getOrderNum();
   }
