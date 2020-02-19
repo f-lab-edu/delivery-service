@@ -1,18 +1,25 @@
 package me.naming.delieveryservice.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import me.naming.delieveryservice.api.KakaoAPI;
 import me.naming.delieveryservice.dao.AddressDao;
+import me.naming.delieveryservice.dao.FeeDao;
 import me.naming.delieveryservice.dao.OrderDao;
+import me.naming.delieveryservice.dao.PaymentDao;
 import me.naming.delieveryservice.dto.AddressDTO;
 import me.naming.delieveryservice.dto.CoordinatesDTO;
+import me.naming.delieveryservice.dto.DeliveryPriceDTO;
+import me.naming.delieveryservice.dto.FeeDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
+import me.naming.delieveryservice.dto.PaymentDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
 import me.naming.delieveryservice.utils.AddressUtil;
 import me.naming.delieveryservice.utils.DistanceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -22,6 +29,8 @@ public class OrderService {
   @Autowired private OrderDao orderDao;
   @Autowired private AddressDao addressDao;
   @Autowired private KakaoAPI kakaoAPI;
+  @Autowired private FeeDao feeDao;
+  @Autowired private PaymentDao paymentDao;
 
   public List<UserOrderListDTO> userOrderList(String userId){
     return orderDao.userOrderList(userId);
@@ -60,5 +69,56 @@ public class OrderService {
     orderDao.orderProduct(orderInfoDTO);
 
     return orderInfoDTO.getOrderNum();
+  }
+
+  /**
+   * 배달 거리에 따라 지불 금액 정보 제공
+   * @param orderNum
+   * @return
+   */
+  public List<DeliveryPriceDTO> deliveryPaymentInfo(int orderNum) {
+
+    float distance = orderDao.getOrderDistance(orderNum);
+    List<FeeDTO> feeDTOList = feeDao.getFeeInfo();
+    FeeDTO generalFeeInfo = feeDTOList.get(0);      // '일괄배송'에 관한 요금 정보 get
+    FeeDTO fastFeeInfo = feeDTOList.get(1);         // '빠른배송'에 관한 요금 정보 get
+
+    DeliveryPriceDTO generalFee = calculateDeliveryFee(generalFeeInfo, distance);
+    DeliveryPriceDTO fastFee = calculateDeliveryFee(fastFeeInfo, distance);
+
+    List<DeliveryPriceDTO> paymentInfoList = new ArrayList<>();
+    paymentInfoList.add(generalFee);
+    paymentInfoList.add(fastFee);
+
+    return paymentInfoList;
+  }
+
+  /**
+   * 결제 금액 저장
+   * @param paymentDTO
+   */
+  public void paymentInfo(PaymentDTO paymentDTO){
+    paymentDao.paymentInfo(paymentDTO);
+  }
+
+  /**
+   * 배송가격 계산
+   * @param feeDTO
+   * @param distance
+   * @return
+   */
+  private DeliveryPriceDTO calculateDeliveryFee(FeeDTO feeDTO, float distance) {
+
+    // 거리가 기본거리(5km)이내인 경우
+    if(distance <= feeDTO.getBasicDistance()) {
+      return new DeliveryPriceDTO(DeliveryPriceDTO.DeliveryType.Type.valueOf(feeDTO.getDeliveryType()), feeDTO.getBasicFee());
+    }
+
+    // 거리가 기본거리(5km)이상인 경우 추가 요금 계산
+    int extraDistanceCount = (int)Math.ceil((distance - feeDTO.getBasicDistance()) / feeDTO.getExtraDistance());
+    int extraPrice = extraDistanceCount * feeDTO.getExtraFee();
+    int deliveryPrice = extraPrice + feeDTO.getBasicFee();
+
+    return new DeliveryPriceDTO(DeliveryPriceDTO.DeliveryType.Type.valueOf(feeDTO.getDeliveryType()), deliveryPrice);
   }
 }

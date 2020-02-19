@@ -15,4 +15,6 @@ public interface OrderDao {
   void orderProduct(OrderInfoDTO orderInfoDTO);
   List<UserOrderListDTO> userOrderList(String userId);
   List<ProductInfoDTO> productInfoDetail(int orderNum);
+
+  float getOrderDistance(int orderNum);
 }
