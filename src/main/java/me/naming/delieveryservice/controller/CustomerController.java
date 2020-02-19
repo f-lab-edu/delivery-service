@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CustomerController {
 
   @Autowired private UserService userService;
-  @Autowired private OrderService orderService;
 
   /**
    * 고객 회원가입 메서드

@@ -1,11 +1,13 @@
 package me.naming.delieveryservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.naming.delieveryservice.dto.DeliveryPriceDTO;
+import me.naming.delieveryservice.dto.FeeDTO;
 import me.naming.delieveryservice.dto.OrderInfoDTO;
 import me.naming.delieveryservice.dto.PaymentDTO;
 import me.naming.delieveryservice.dto.UserOrderListDTO;
@@ -40,10 +42,8 @@ public class OrderController {
    */
   @PostMapping("/users/{userId}")
   public ResponseEntity<OrderNum> orderInfo(@PathVariable String userId, @RequestBody OrderInfoDTO orderInfoDTO){
-
     orderInfoDTO.setUserId(userId);
     int orderNum = orderService.orderInfo(orderInfoDTO);
-
     return ResponseEntity.status(HttpStatus.CREATED).body(new OrderNum(orderNum));
   }
 

@@ -9,6 +9,7 @@ import me.naming.delieveryservice.dao.AddressDao;
 import me.naming.delieveryservice.dao.FeeDao;
 import me.naming.delieveryservice.dao.OrderDao;
 import me.naming.delieveryservice.dao.PaymentDao;
+import me.naming.delieveryservice.dto.AddressDTO;
 import me.naming.delieveryservice.dto.CoordinatesDTO;
 import me.naming.delieveryservice.dto.DeliveryPriceDTO;
 import me.naming.delieveryservice.dto.FeeDTO;
@@ -18,6 +19,7 @@ import me.naming.delieveryservice.dto.UserOrderListDTO;
 import me.naming.delieveryservice.utils.AddressUtil;
 import me.naming.delieveryservice.utils.DistanceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,8 +49,8 @@ public class OrderService {
    */
   public int orderInfo(OrderInfoDTO orderInfoDTO){
 
-    HashMap<String,Object> departureInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDepartureCode());
-    HashMap<String,Object> destinationInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDestinationCode());
+    AddressDTO departureInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDepartureCode());
+    AddressDTO destinationInfoFromDB = addressDao.getAddressInfoByAddressCode(orderInfoDTO.getDestinationCode());
 
     String departureAddress = AddressUtil.getRoadAddress(departureInfoFromDB);
     String destinationAddress = AddressUtil.getRoadAddress(destinationInfoFromDB);
@@ -137,7 +139,7 @@ public class OrderService {
 
     // 거리가 기본거리(5km)이내인 경우
     if(distance <= feeDTO.getBasicDistance()) {
-      return new DeliveryPriceDTO(feeDTO.getDeliveryType(), feeDTO.getBasicFee());
+      return new DeliveryPriceDTO(DeliveryPriceDTO.DeliveryType.Type.valueOf(feeDTO.getDeliveryType()), feeDTO.getBasicFee());
     }
 
     // 거리가 기본거리(5km)이상인 경우 추가 요금 계산
@@ -145,6 +147,6 @@ public class OrderService {
     int extraPrice = extraDistanceCount * feeDTO.getExtraFee();
     int deliveryPrice = extraPrice + feeDTO.getBasicFee();
 
-    return new DeliveryPriceDTO(feeDTO.getDeliveryType(), deliveryPrice);
+    return new DeliveryPriceDTO(DeliveryPriceDTO.DeliveryType.Type.valueOf(feeDTO.getDeliveryType()), deliveryPrice);
   }
 }
